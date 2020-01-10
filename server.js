@@ -1,11 +1,13 @@
 const express = require('express')
 const body_parser = require('body-parser')
-const mysql = require('mysql')
+//const mysql = require('mysql')
 const server = express()
 
-app.use(body_parser.json())
-app.get('/bookmarks', (req, res) => {
-	return res.status(200).send(`hello from server! you wrote ${req.body}`)
+server.use(body_parser.json())
+server.get('/', (req, res) => {
+	return res.send('hello from server!')
 })
 
-app.listen(7779)
+const port = 7779
+server.listen(port)
+console.log('listening on port ' + port)
