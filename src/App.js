@@ -25,6 +25,15 @@ const decipher = salt => {
     .join('')
 }
 
+function Bookmark(props) {
+  return (
+    <div className='bookmark'>
+      <div>{props.title}</div>
+      <div>{props.url}</div>
+    </div>
+  )
+}
+
 function App() {
   let [ userText, setUserText ] = React.useState('')
   let [ passText, setPassText ] = React.useState('')
@@ -32,6 +41,7 @@ function App() {
     url: '',
     title: '',
   })
+  let [ bookmarks, setBookmarks ] = React.useState([])
 
   function submitCredentials(e) {
     e.preventDefault()
@@ -44,7 +54,7 @@ function App() {
         return res.json()
       })
       .then(json => {
-        console.log(json)
+        setBookmarks(bookmarks.concat(json))
       })
       .catch(e => console.log(e))
   }
@@ -72,11 +82,11 @@ function App() {
         return res.json()
       })
       .then(json => {
-        console.log(json)
+        setBookmarks(bookmarks.concat(json))
       })
       .catch(e => console.log(e))
   }
-
+  console.log(bookmarks)
   return (
     <div id='app-root'>
       <form id='credentials-form' onSubmit={submitCredentials}>
@@ -122,6 +132,11 @@ function App() {
         </button>
 
       </form>
+      {bookmarks.map(bm => {
+        const title = decipher(passText)(bm.title)
+        const url = decipher(passText)(bm.url)
+        return <Bookmark title={title} url={url} />
+      })}
     </div>
   );
 }
