@@ -24,14 +24,20 @@ server.get('/', (req, res) => {
 	})
 })
 server.post('/', (req, res) => {
-	const bookmark = req.body.bookmark
-	const username = req.body.username
-	// mysql look up if user exists by map reducing users in bm list
-	// send 404 if user not found?
-	// otherwise send list of bookmarks
-	// mysql by itering through bookmarks where user is username
-	// map each one to a object, add to a list
-	// respond with json string of list of objects
+	let bookmark_query = 
+		'insert into `bookmarks` (uid, user, title, url) values ("'
+		+ req.body.uid + '", "'
+		+ req.body.user + '", "'
+		+ req.body.title + '", "'
+		+ req.body.url + '")'
+	db.query(bookmark_query, (err, result) => {
+		if (err) {
+			console.log(err)
+			return res.status(500).send(err)
+		}
+		console.log(result)
+		return res.send(result)
+	})
 
 })
 
