@@ -16,10 +16,6 @@ server.get('/', (req, res) => {
 			console.log(err)
 			return res.status(500).send(err)
 		}
-		if (!result.length) {
-			return res.send('{"msg":"This user has no bookmarks"}')
-		}
-		console.log(result)
 		return res.send(result)
 	})
 })

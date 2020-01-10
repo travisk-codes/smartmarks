@@ -45,6 +45,14 @@ function App() {
 
   function submitCredentials(e) {
     e.preventDefault()
+    if (!userText) {
+      console.log('must provide username to login')
+      return
+    }
+    if (!passText) {
+      console.log('must provide password to login')
+      return
+    }
     const params = { user_id: cipher(passText)(userText) }
     let url = new URL('https://travisk.info/smartmarks')
     Object.keys(params)
@@ -54,14 +62,19 @@ function App() {
         return res.json()
       })
       .then(json => {
-        setBookmarks(bookmarks.concat(json))
+        setBookmarks(json)
       })
       .catch(e => console.log(e))
   }
+
   function submitNewBookmark(e) {
     e.preventDefault()
-    if (! (newBookmark.title && newBookmark.url)) {
+    if (!newBookmark.title || !newBookmark.url) {
       console.log('need both title and url to submit bookmark')
+      return
+    }
+    if (!userText || !passText) {
+      console.log('must sign in to submit bookmark')
       return
     }
     const params = {
@@ -99,7 +112,11 @@ function App() {
         <br />
         <input
           id='pass-input'
-          onChange={e => setPassText(e.target.value)}
+          type='password'
+          onChange={e => {
+            setBookmarks([])
+            setPassText(e.target.value)
+          }}
           value={passText}
         />
         <br />
