@@ -10,20 +10,33 @@ export default function Bookmark(props) {
     showButton(false)
   }
 
-  function renderButton() {
-    return isShowingButton
-      ? <button onClick={() => props.onClickDelete(props.uid)}>X</button>
+  function renderDeleteButton() {
+    return true
+      ? <button onClick={() => props.onClickDelete(props.uid)}>Delete</button>
       : null
-  }
+	}
+	
+	function renderEditButton() {
+		return true
+			? <button onClick={() => props.onClickDelete(props.uid)}>Edit</button>
+			: null
+	}
 
   return (
     <div 
       className='bookmark'
       onMouseEnter={mouseEnter}
       onMouseLeave={mouseLeave}>
-      <div>{props.title}</div>
-      <div>{props.url}</div>
-      {renderButton()}
+      <div className='title'>{props.title}</div>
+      <div className='url'>
+				<a href={props.url}>
+					{props.url}
+				</a>
+			</div>
+			<div className='buttons'>
+				{renderEditButton()}
+				{renderDeleteButton()}
+			</div>
     </div>
   )
 }

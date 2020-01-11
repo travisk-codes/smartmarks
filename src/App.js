@@ -43,8 +43,8 @@ function App() {
       },
       body: JSON.stringify(params)
     })
+    setNewBookmark({url: '', title:''})
     getBookmarks()
-
   } catch(e) {
     throw new Error(e)
   }}

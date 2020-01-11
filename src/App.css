@@ -16,4 +16,28 @@
 
 #new-bookmark {
   margin: 0 auto;
+  padding: 0 0 3em 0;
+}
+
+.bookmark {
+  display: flex;
+  background-color: whitesmoke;
+  padding: 1em 1em 1em 1em;
+  margin-bottom: 1em;
+  border-bottom: 1px solid grey;
+  align-items: baseline;
+}
+
+.bookmark .title {
+  font-size: larger;
+  margin-right: 0.5em;
+}
+
+.bookmark .url a {
+  color: grey;
+  text-decoration: unset;
+}
+
+.bookmark .buttons {
+  margin: 0 0 0 auto;
 }
