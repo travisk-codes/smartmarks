@@ -12,7 +12,7 @@ export default function Bookmark(props) {
 
   function renderButton() {
     return isShowingButton
-      ? <button>X</button>
+      ? <button onClick={() => props.onClickDelete(props.uid)}>X</button>
       : null
   }
 

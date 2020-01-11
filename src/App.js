@@ -4,6 +4,8 @@ import Bookmark from './Bookmark'
 import { cipher, decipher } from './cipher'
 import './App.css';
 
+const api_location = 'https://travisk.info/smartmarks'
+
 function App() {
   let [ userText, setUserText ] = React.useState('')
   let [ passText, setPassText ] = React.useState('')
@@ -15,7 +17,7 @@ function App() {
 
   async function getBookmarks() { try {
     const params = { user_id: cipher(passText)(userText) }
-    let url = new URL('https://travisk.info/smartmarks')
+    let url = new URL(api_location)
     Object.keys(params)
       .forEach(key => url.searchParams.append(key, params[key]))
 
@@ -34,15 +36,27 @@ function App() {
       title: cipher(passText)(newBookmark.title),
       url: cipher(passText)(newBookmark.url)
     }
-    const res = await fetch('https://travisk.info/smartmarks', {
+    await fetch(api_location, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(params)
     })
-    const json = await res.json()
-    console.log(json)
+    getBookmarks()
+
+  } catch(e) {
+    throw new Error(e)
+  }}
+
+  async function deleteBookmark(uid) { try {
+    await fetch(api_location, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uid })
+    })
     getBookmarks()
   } catch(e) {
     throw new Error(e)
@@ -75,10 +89,16 @@ function App() {
   }
 
   function renderBookmarks() {
-    return bookmarks.map((bm, i) => {
+    return bookmarks.map(bm => {
       const title = decipher(passText)(bm.title)
       const url = decipher(passText)(bm.url)
-      return <Bookmark key={i} title={title} url={url} />
+      return <Bookmark 
+        onClickDelete={deleteBookmark} 
+        key={bm.uid}
+        uid={bm.uid} 
+        title={title} 
+        url={url} 
+      />
     })
   }
 
