@@ -2,9 +2,9 @@ const express = require('express')
 const body_parser = require('body-parser')
 const mysql = require('mysql')
 const cors = require('cors')
-const server = express()
 const { mysql_secrets } = require('./secrets')
 
+const server = express()
 const db = mysql.createConnection(mysql_secrets)
 
 server.use(cors())
@@ -35,7 +35,6 @@ server.post('/', (req, res) => {
 			console.log(err)
 			return res.status(500).send(err)
 		}
-		console.log(result)
 		return res.send(result)
 	})
 
@@ -69,5 +68,6 @@ server.delete('/', (req, res) => {
 })
 
 const port = 7779
-server.listen(port)
-console.log('listening on port ' + port)
+server.listen(port, () => {
+	console.log('listening on port ' + port)
+})

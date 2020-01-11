@@ -7,18 +7,18 @@ import './App.css';
 const api_location = 'https://travisk.info/smartmarks'
 
 function App() {
-  let [ userText, setUserText ] = React.useState('')
-  let [ passText, setPassText ] = React.useState('')
+  let [ username, setUsername ] = React.useState('')
+  let [ password, setPassword ] = React.useState('')
   let [ bookmarks, setBookmarks ] = React.useState([])
   let [ inputMode, setInputMode ] = React.useState('add')
   let [ currentUid, setCurrentUid ] = React.useState('')
-  let [ newBookmark, setNewBookmark ] = React.useState({
+  let [ activeBookmark, setActiveBookmark ] = React.useState({
     url: '',
     title: '',
   })
 
   async function getBookmarks() { try {
-    const params = { user_id: cipher(passText)(userText) }
+    const params = { user_id: cipher(password)(username) }
     let url = new URL(api_location)
     Object.keys(params)
       .forEach(key => url.searchParams.append(key, params[key]))
@@ -34,10 +34,11 @@ function App() {
   async function addBookmark() { try {
     const params = {
       uid: uuid(),
-      user: cipher(passText)(userText),
-      title: cipher(passText)(newBookmark.title),
-      url: cipher(passText)(newBookmark.url)
+      user: cipher(password)(username),
+      title: cipher(password)(activeBookmark.title),
+      url: cipher(password)(activeBookmark.url)
     }
+
     await fetch(api_location, {
       method: 'POST',
       headers: {
@@ -45,32 +46,31 @@ function App() {
       },
       body: JSON.stringify(params)
     })
-    setNewBookmark({url: '', title:''})
+
+    setActiveBookmark({url: '', title:''})
     getBookmarks()
+
   } catch(e) {
     throw new Error(e)
   }}
 
   async function updateBookmark() { try {
-    const { title, url } = newBookmark
-    const uid = currentUid
-    console.log(JSON.stringify({uid, title, url}))
+    const { title, url } = activeBookmark
     const params = {
       uid: currentUid,
-      title: cipher(passText)(title),
-      url: cipher(passText)(url)
+      title: cipher(password)(title),
+      url: cipher(password)(url)
     }
-    const res = await fetch(api_location, {
+
+    await fetch(api_location, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(params)
     })
-    const json = await res.json()
-    console.log(json)
 
-    setNewBookmark({url: '', title: ''})
+    setActiveBookmark({url: '', title: ''})
     setCurrentUid('')
     setInputMode('add')
     getBookmarks()
@@ -78,8 +78,6 @@ function App() {
   } catch(e) {
     throw new Error(e)
   }}
-
-
 
   async function deleteBookmark(uid) { try {
     await fetch(api_location, {
@@ -89,55 +87,56 @@ function App() {
       },
       body: JSON.stringify({ uid })
     })
+
     getBookmarks()
+
   } catch(e) {
     throw new Error(e)
   }}
 
   function submitCredentials(e) {
     e.preventDefault()
-    if (!userText) {
+    if (!username) {
       console.log('must provide username to login')
       return
     }
-    if (!passText) {
+    if (!password) {
       console.log('must provide password to login')
       return
     }
     getBookmarks()
   }
 
-  function submitNewBookmark(e) {
+  function submitActiveBookmark(e) {
     e.preventDefault()
-    if (!newBookmark.title || !newBookmark.url) {
+    if (!activeBookmark.title || !activeBookmark.url) {
       console.log('need both title and url to submit bookmark')
       return
     }
-    if (!userText || !passText) {
+    if (!username || !password) {
       console.log('must sign in to submit bookmark')
       return
     }
     if (inputMode === 'add') {
       addBookmark()
     } else {
-      console.log(currentUid)
       updateBookmark()
     }
   }
 
-  function fillFieldsAndPassUid({ uid, title, url}) {
-    setNewBookmark({ title, url})
+  function startEditMode({ uid, title, url}) {
+    setActiveBookmark({ title, url})
     setCurrentUid(uid)
     setInputMode('edit')
   }
 
   function renderBookmarks() {
     return bookmarks.map(bm => {
-      const title = decipher(passText)(bm.title)
-      const url = decipher(passText)(bm.url)
+      const title = decipher(password)(bm.title)
+      const url = decipher(password)(bm.url)
       return <Bookmark 
         onClickDelete={deleteBookmark}
-        onClickEdit={fillFieldsAndPassUid}
+        onClickEdit={startEditMode}
         key={bm.uid}
         uid={bm.uid} 
         title={title} 
@@ -151,55 +150,56 @@ function App() {
 
       <form id='credentials-form' onSubmit={submitCredentials}>
         <p>Smartmarks</p>
+
         <input
           id='user-input'
-          onChange={e => setUserText(e.target.value)}
-          value={userText}
+          onChange={e => setUsername(e.target.value)}
+          value={username}
         />
         <input
           id='pass-input'
           type='password'
           onChange={e => {
             setBookmarks([])
-            setPassText(e.target.value)
+            setPassword(e.target.value)
           }}
-          value={passText}
+          value={password}
         />
+
         <button
-          disabled={!userText || !passText}>
+          disabled={!username || !password}>
           Submit
         </button>
       </form>
 
-      <form id='new-bookmark' onSubmit={submitNewBookmark}>
+      <form id='new-bookmark' onSubmit={submitActiveBookmark}>
         <p>New Bookmark</p>
 
         <input
           id='new-bookmark-title'
-          onChange={e => setNewBookmark(
-            {...newBookmark, title: e.target.value}
+          onChange={e => setActiveBookmark(
+            {...activeBookmark, title: e.target.value}
           )}
-          value={newBookmark.title}
+          value={activeBookmark.title}
         />
         <input
           id='new-bookmark-url'
-          onChange={e => setNewBookmark(
-            {...newBookmark, url: e.target.value}
+          onChange={e => setActiveBookmark(
+            {...activeBookmark, url: e.target.value}
           )}
-          value={newBookmark.url}
+          value={activeBookmark.url}
         />
 
         <button 
-          disabled={!newBookmark.title || !newBookmark.url}>
+          disabled={!activeBookmark.title || !activeBookmark.url}>
           {inputMode === 'add' ? 'Add Bookmark' : 'Edit Bookmark'}
         </button>
-
       </form>
 
       {renderBookmarks()}
 
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
