@@ -1,10 +1,31 @@
 import React from 'react'
+import Select from 'react-select/creatable'
+// TODO: get tag data on mount
+
 import uuid from 'uuid/v4'
 import Bookmark from './Bookmark'
 import { cipher, decipher } from './cipher'
 import './App.css';
 
 const api_location = 'https://travisk.info/smartmarks'
+
+    
+function Tags(props) {
+  let [ tags, setTags ] = React.useState([])
+
+  function handleChange(newValue, actionMeta) {
+    console.group('Value Changed');
+    console.log(newValue);
+    console.log(`action: ${actionMeta.action}`);
+    console.groupEnd();
+  }
+    
+  return <Select
+    isMulti
+    onChange={handleChange}
+    options={tags}
+  />
+}
 
 function App() {
   let [ username, setUsername ] = React.useState('')
@@ -189,6 +210,9 @@ function App() {
           )}
           value={activeBookmark.url}
         />
+        <div id='tags-container'>
+          <Tags />
+        </div>
 
         <button 
           disabled={!activeBookmark.title || !activeBookmark.url}>
