@@ -12,18 +12,32 @@ const api_location = 'https://travisk.info/smartmarks'
     
 function Tags(props) {
   let [ tags, setTags ] = React.useState([])
+  let [ tagOptions, setTagOptions ] = React.useState([])
+
+  React.useEffect(() => {
+    // TODO load tags from db given uid
+  }, [])
 
   function handleChange(newValue, actionMeta) {
+    if (actionMeta.action === 'create-option') {
+      let tag = newValue.pop().value
+      setTags(tags.concat([tag]))
+    }
+
     console.group('Value Changed');
     console.log(newValue);
     console.log(`action: ${actionMeta.action}`);
     console.groupEnd();
   }
+
+  function convertTagsIntoSelectObject(tags) {
+    return tags.map(tag => ({ label: tag, value: tag}))
+  }
     
   return <Select
     isMulti
     onChange={handleChange}
-    options={tags}
+    options={convertTagsIntoSelectObject(tags)}
   />
 }
 
