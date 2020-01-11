@@ -1,10 +1,45 @@
 import React from 'react'
+import Select from 'react-select/creatable'
+// TODO: get tag data on mount
+
 import uuid from 'uuid/v4'
 import Bookmark from './Bookmark'
 import { cipher, decipher } from './cipher'
 import './App.css';
 
 const bookmarks_url = 'https://travisk.info/smartmarks/bookmarks'
+
+    
+function Tags(props) {
+  let [ tags, setTags ] = React.useState([])
+  let [ tagOptions, setTagOptions ] = React.useState([])
+
+  React.useEffect(() => {
+    // TODO load tags from db given uid
+  }, [])
+
+  function handleChange(newValue, actionMeta) {
+    if (actionMeta.action === 'create-option') {
+      let tag = newValue.pop().value
+      setTags(tags.concat([tag]))
+    }
+
+    console.group('Value Changed');
+    console.log(newValue);
+    console.log(`action: ${actionMeta.action}`);
+    console.groupEnd();
+  }
+
+  function convertTagsIntoSelectObject(tags) {
+    return tags.map(tag => ({ label: tag, value: tag}))
+  }
+    
+  return <Select
+    isMulti
+    onChange={handleChange}
+    options={convertTagsIntoSelectObject(tags)}
+  />
+}
 
 function App() {
   let [ username, setUsername ] = React.useState('')
@@ -197,6 +232,9 @@ function App() {
           )}
           value={activeBookmark.url}
         />
+        <div id='tags-container'>
+          <Tags />
+        </div>
 
         <button 
           disabled={!activeBookmark.title || !activeBookmark.url}>
