@@ -5,12 +5,14 @@ const cors = require('cors')
 const { mysql_secrets } = require('./secrets')
 
 const server = express()
+const router = express.Router()
 const db = mysql.createConnection(mysql_secrets)
 
 server.use(cors())
 server.use(body_parser.json())
+server.use('/smartmarks', router)
 
-server.get('/', (req, res) => {
+router.get('/bookmarks', (req, res) => {
 	let user_query = 
 		'select * from `bookmarks` where user = "'
 		+ req.query.user_id + '"'
@@ -22,8 +24,20 @@ server.get('/', (req, res) => {
 		return res.send(result)
 	})
 })
+router.get('/bookmarks/:uid', (req, res) => {
+	let bookmark_query =
+		'select * from `bookmarks` where uid = "'
+		+ req.params.uid + '"'
+	db.query(bookmark_query, (err, result) => {
+		if (err) {
+			console.log(err)
+			return res.status(500).send(err)
+		}
+		return res.send(result)
+	})
+})
 
-server.post('/', (req, res) => {
+router.post('/bookmarks', (req, res) => {
 	let bookmark_query = 
 		'insert into `bookmarks` (uid, user, title, url) values ("'
 		+ req.body.uid + '", "'
@@ -40,13 +54,13 @@ server.post('/', (req, res) => {
 
 })
 
-server.put('/', (req, res) => {
+router.put('/bookmarks/:uid', (req, res) => {
 	let query =
 		'update `bookmarks` set `title` = "' 
 		+ req.body.title + '", '
 		+ '`url` = "' + req.body.url + '" '
 		+ 'where `uid` = "'
-		+ req.body.uid + '"'
+		+ req.params.uid + '"'
 	db.query(query, (err, result) => {
 		if (err) {
 			return res.status(500).send(err)
@@ -55,10 +69,10 @@ server.put('/', (req, res) => {
 	})
 })
 
-server.delete('/', (req, res) => {
+router.delete('/bookmarks/:uid', (req, res) => {
 	let query = 
 		'delete from `bookmarks` where `uid` = "'
-		+ req.body.uid + '"'
+		+ req.params.uid + '"'
 	db.query(query, (err, result) => {
 		if (err) {
 			return res.status(500).send(err)

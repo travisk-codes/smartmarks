@@ -4,7 +4,7 @@ import Bookmark from './Bookmark'
 import { cipher, decipher } from './cipher'
 import './App.css';
 
-const api_location = 'https://travisk.info/smartmarks'
+const bookmarks_url = 'https://travisk.info/smartmarks/bookmarks'
 
 function App() {
   let [ username, setUsername ] = React.useState('')
@@ -19,7 +19,7 @@ function App() {
 
   async function getBookmarks() { try {
     const params = { user_id: cipher(password)(username) }
-    let url = new URL(api_location)
+    let url = new URL(bookmarks_url)
     Object.keys(params)
       .forEach(key => url.searchParams.append(key, params[key]))
 
@@ -31,15 +31,24 @@ function App() {
     throw new Error(e)
   }}
 
+  async function getBookmark(uid) { try {
+    const res = await fetch(bookmarks_url + '/' + uid)
+    const json = await res.json()
+    setBookmarks(bookmarks.concat(json))
+  } catch(e) {
+    throw new Error(e)
+  }}
+
   async function addBookmark() { try {
+    const uid = uuid()
     const params = {
-      uid: uuid(),
+      uid,
       user: cipher(password)(username),
       title: cipher(password)(activeBookmark.title),
       url: cipher(password)(activeBookmark.url)
     }
 
-    await fetch(api_location, {
+    await fetch(bookmarks_url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -48,7 +57,7 @@ function App() {
     })
 
     setActiveBookmark({url: '', title:''})
-    getBookmarks()
+    getBookmark(uid)
 
   } catch(e) {
     throw new Error(e)
@@ -57,12 +66,11 @@ function App() {
   async function updateBookmark() { try {
     const { title, url } = activeBookmark
     const params = {
-      uid: currentUid,
       title: cipher(password)(title),
       url: cipher(password)(url)
     }
 
-    await fetch(api_location, {
+    await fetch(bookmarks_url + '/' + currentUid, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -80,12 +88,12 @@ function App() {
   }}
 
   async function deleteBookmark(uid) { try {
-    await fetch(api_location, {
+    await fetch(bookmarks_url + '/' + uid, {
       method: 'DELETE',
-      headers: {
+      /*headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ uid })
+      body: JSON.stringify({ uid })*/
     })
 
     getBookmarks()
