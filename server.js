@@ -41,6 +41,21 @@ server.post('/', (req, res) => {
 
 })
 
+server.put('/', (req, res) => {
+	let query =
+		'update `bookmarks` set `title` = "' 
+		+ req.body.title + '", '
+		+ '`url` = "' + req.body.url + '" '
+		+ 'where `uid` = "'
+		+ req.body.uid + '"'
+	db.query(query, (err, result) => {
+		if (err) {
+			return res.status(500).send(err)
+		}
+		return res.send(result)
+	})
+})
+
 server.delete('/', (req, res) => {
 	let query = 
 		'delete from `bookmarks` where `uid` = "'

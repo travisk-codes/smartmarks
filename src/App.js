@@ -10,6 +10,8 @@ function App() {
   let [ userText, setUserText ] = React.useState('')
   let [ passText, setPassText ] = React.useState('')
   let [ bookmarks, setBookmarks ] = React.useState([])
+  let [ inputMode, setInputMode ] = React.useState('add')
+  let [ currentUid, setCurrentUid ] = React.useState('')
   let [ newBookmark, setNewBookmark ] = React.useState({
     url: '',
     title: '',
@@ -49,6 +51,36 @@ function App() {
     throw new Error(e)
   }}
 
+  async function updateBookmark() { try {
+    const { title, url } = newBookmark
+    const uid = currentUid
+    console.log(JSON.stringify({uid, title, url}))
+    const params = {
+      uid: currentUid,
+      title: cipher(passText)(title),
+      url: cipher(passText)(url)
+    }
+    const res = await fetch(api_location, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params)
+    })
+    const json = await res.json()
+    console.log(json)
+
+    setNewBookmark({url: '', title: ''})
+    setCurrentUid('')
+    setInputMode('add')
+    getBookmarks()
+
+  } catch(e) {
+    throw new Error(e)
+  }}
+
+
+
   async function deleteBookmark(uid) { try {
     await fetch(api_location, {
       method: 'DELETE',
@@ -85,7 +117,18 @@ function App() {
       console.log('must sign in to submit bookmark')
       return
     }
-    addBookmark()
+    if (inputMode === 'add') {
+      addBookmark()
+    } else {
+      console.log(currentUid)
+      updateBookmark()
+    }
+  }
+
+  function fillFieldsAndPassUid({ uid, title, url}) {
+    setNewBookmark({ title, url})
+    setCurrentUid(uid)
+    setInputMode('edit')
   }
 
   function renderBookmarks() {
@@ -93,7 +136,8 @@ function App() {
       const title = decipher(passText)(bm.title)
       const url = decipher(passText)(bm.url)
       return <Bookmark 
-        onClickDelete={deleteBookmark} 
+        onClickDelete={deleteBookmark}
+        onClickEdit={fillFieldsAndPassUid}
         key={bm.uid}
         uid={bm.uid} 
         title={title} 
@@ -121,7 +165,8 @@ function App() {
           }}
           value={passText}
         />
-        <button>
+        <button
+          disabled={!userText || !passText}>
           Submit
         </button>
       </form>
@@ -144,10 +189,9 @@ function App() {
           value={newBookmark.url}
         />
 
-        <button style={{
-          display: newBookmark.title && newBookmark.url ? 'inline' : 'none'
-        }}>
-          Add Bookmark
+        <button 
+          disabled={!newBookmark.title || !newBookmark.url}>
+          {inputMode === 'add' ? 'Add Bookmark' : 'Edit Bookmark'}
         </button>
 
       </form>
