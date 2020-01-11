@@ -9,6 +9,7 @@ const db = mysql.createConnection(mysql_secrets)
 
 server.use(cors())
 server.use(body_parser.json())
+
 server.get('/', (req, res) => {
 	let user_query = 'select * from `bookmarks` where user = "' + req.query.user_id + '"'
 	db.query(user_query, (err, result) => {
@@ -19,6 +20,7 @@ server.get('/', (req, res) => {
 		return res.send(result)
 	})
 })
+
 server.post('/', (req, res) => {
 	let bookmark_query = 
 		'insert into `bookmarks` (uid, user, title, url) values ("'

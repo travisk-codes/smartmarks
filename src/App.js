@@ -1,47 +1,52 @@
 import React from 'react'
 import uuid from 'uuid/v4'
+import Bookmark from './Bookmark'
+import { cipher, decipher } from './cipher'
 import './App.css';
-
-// https://stackoverflow.com/a/54026460/12392329
-const cipher = salt => {
-  const textToChars = text => text.split('').map(c => c.charCodeAt(0))
-  const byteHex = n => ("0" + Number(n).toString(16)).substr(-2)
-  const applySaltToChar = code => textToChars(salt).reduce((a,b) => a ^ b, code)    
-
-  return text => text.split('')
-    .map(textToChars)
-    .map(applySaltToChar)
-    .map(byteHex)
-    .join('')
-}
-const decipher = salt => {
-  const textToChars = text => text.split('').map(c => c.charCodeAt(0))
-  const applySaltToChar = code => textToChars(salt).reduce((a,b) => a ^ b, code)
-
-  return encoded => encoded.match(/.{1,2}/g)
-    .map(hex => parseInt(hex, 16))
-    .map(applySaltToChar)
-    .map(charCode => String.fromCharCode(charCode))
-    .join('')
-}
-
-function Bookmark(props) {
-  return (
-    <div className='bookmark'>
-      <div>{props.title}</div>
-      <div>{props.url}</div>
-    </div>
-  )
-}
 
 function App() {
   let [ userText, setUserText ] = React.useState('')
   let [ passText, setPassText ] = React.useState('')
+  let [ bookmarks, setBookmarks ] = React.useState([])
   let [ newBookmark, setNewBookmark ] = React.useState({
     url: '',
     title: '',
   })
-  let [ bookmarks, setBookmarks ] = React.useState([])
+
+  async function getBookmarks() { try {
+    const params = { user_id: cipher(passText)(userText) }
+    let url = new URL('https://travisk.info/smartmarks')
+    Object.keys(params)
+      .forEach(key => url.searchParams.append(key, params[key]))
+
+    const res = await fetch(url)
+    const json = await res.json()
+    setBookmarks(json)
+
+  } catch(e) {
+    throw new Error(e)
+  }}
+
+  async function addBookmark() { try {
+    const params = {
+      uid: uuid(),
+      user: cipher(passText)(userText),
+      title: cipher(passText)(newBookmark.title),
+      url: cipher(passText)(newBookmark.url)
+    }
+    const res = await fetch('https://travisk.info/smartmarks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params)
+    })
+    const json = await res.json()
+    console.log(json)
+    getBookmarks()
+  } catch(e) {
+    throw new Error(e)
+  }}
 
   function submitCredentials(e) {
     e.preventDefault()
@@ -53,18 +58,7 @@ function App() {
       console.log('must provide password to login')
       return
     }
-    const params = { user_id: cipher(passText)(userText) }
-    let url = new URL('https://travisk.info/smartmarks')
-    Object.keys(params)
-      .forEach(key => url.searchParams.append(key, params[key]))
-    fetch(url)
-      .then(res => {
-        return res.json()
-      })
-      .then(json => {
-        setBookmarks(json)
-      })
-      .catch(e => console.log(e))
+    getBookmarks()
   }
 
   function submitNewBookmark(e) {
@@ -77,31 +71,20 @@ function App() {
       console.log('must sign in to submit bookmark')
       return
     }
-    const params = {
-      uid: uuid(),
-      user: cipher(passText)(userText),
-      title: cipher(passText)(newBookmark.title),
-      url: cipher(passText)(newBookmark.url)
-    }
-    console.log(JSON.stringify(params))
-    fetch('https://travisk.info/smartmarks', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(params)
-    })
-      .then(res => {
-        return res.json()
-      })
-      .then(json => {
-        setBookmarks(bookmarks.concat(json))
-      })
-      .catch(e => console.log(e))
+    addBookmark()
   }
-  console.log(bookmarks)
+
+  function renderBookmarks() {
+    return bookmarks.map((bm, i) => {
+      const title = decipher(passText)(bm.title)
+      const url = decipher(passText)(bm.url)
+      return <Bookmark key={i} title={title} url={url} />
+    })
+  }
+
   return (
     <div id='app-root'>
+
       <form id='credentials-form' onSubmit={submitCredentials}>
         <p>Smartmarks</p>
         <input
@@ -109,7 +92,6 @@ function App() {
           onChange={e => setUserText(e.target.value)}
           value={userText}
         />
-        <br />
         <input
           id='pass-input'
           type='password'
@@ -119,11 +101,11 @@ function App() {
           }}
           value={passText}
         />
-        <br />
         <button>
           Submit
         </button>
       </form>
+
       <form id='new-bookmark' onSubmit={submitNewBookmark}>
         <p>New Bookmark</p>
 
@@ -143,17 +125,15 @@ function App() {
         />
 
         <button style={{
-          display: newBookmark.title && newBookmark.url ? 'block' : 'none'
+          display: newBookmark.title && newBookmark.url ? 'inline' : 'none'
         }}>
           Add Bookmark
         </button>
 
       </form>
-      {bookmarks.map(bm => {
-        const title = decipher(passText)(bm.title)
-        const url = decipher(passText)(bm.url)
-        return <Bookmark title={title} url={url} />
-      })}
+
+      {renderBookmarks()}
+
     </div>
   );
 }
