@@ -2,7 +2,6 @@ const express = require('express')
 const body_parser = require('body-parser')
 const mysql = require('mysql')
 const cors = require('cors')
-const path = require('path')
 const { mysql_secrets } = require('./secrets')
 
 const server = express()
@@ -11,8 +10,7 @@ const db = mysql.createConnection(mysql_secrets)
 
 server.use(cors())
 server.use(body_parser.json())
-server.use('/smartmarks', router)
-server.use(express.static(path.join(__dirname, 'build')))
+server.use('/api', router)
 
 router.get('/bookmarks', (req, res) => {
 	let user_query = 
@@ -81,10 +79,6 @@ router.delete('/bookmarks/:uid', (req, res) => {
 		}
 		return res.send(result)
 	})
-})
-
-server.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'build', 'index.html'))
 })
 
 const port = 7779
