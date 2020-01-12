@@ -21,7 +21,6 @@ export default function Bookmark(props) {
 			? <button onClick={() => props.onClickEdit(props)}>Edit</button>
 			: <button disabled>Edit</button>
 	}
-
   return (
     <div 
       className='bookmark'
@@ -33,6 +32,9 @@ export default function Bookmark(props) {
 					{props.url}
 				</a>
 			</div>
+      <div className='tags'>
+        {props.tags ? props.tags.map(tag => tag.label) : null }
+      </div>
 			<div className='buttons'>
 				{renderEditButton()}
 				{renderDeleteButton()}
