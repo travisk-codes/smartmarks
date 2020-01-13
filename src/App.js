@@ -7,8 +7,8 @@ import Bookmark from './Bookmark'
 import { cipher, decipher } from './cipher'
 import './App.css';
 
-const bookmarks_url = 'https://travisk.info/smartmarks/bookmarks'
-const tags_url = 'https://travisk.info/smartmarks/tags'
+const bookmarks_url = 'https://travisk.info/api/bookmarks'
+const tags_url = 'https://travisk.info/api/tags'
     
 function ActiveBookmarkTagInput(props) {
   let [ tagOptions, setTagOptions ] = React.useState([
@@ -18,7 +18,7 @@ function ActiveBookmarkTagInput(props) {
   ])
 
   React.useEffect(() => {
-    async function getTags() { try {
+    /*async function getTags() { try {
       const params = { user_id: cipher(props.pass)(props.user) }
       let url = new URL(tags_url)
       Object.keys(params)
@@ -32,7 +32,7 @@ function ActiveBookmarkTagInput(props) {
   
     } catch(e) {
       throw new Error(e)
-    }}
+    }}*/
   }, [])
 
   function handleChange(newValue, actionMeta) {
@@ -80,7 +80,17 @@ function App() {
     const res = await fetch(url)
     const json = await res.json()
     console.log(json)
-    setBookmarks(json)
+    let bookmarks = json[0]
+    let tags = json[1]
+    bookmarks.forEach(bm => {
+      bm.tags = []
+      tags.forEach(tag => {
+        if (bm.uid === tag.uid) {
+          bm.tags.push(tag)
+        }
+      })
+    })
+    setBookmarks(bookmarks)
 
   } catch(e) {
     throw new Error(e)
@@ -194,7 +204,7 @@ function App() {
     return bookmarks.map(bm => {
       const title = decipher(password)(bm.title)
       const url = decipher(password)(bm.url)
-      const tags = bm.tags ? bm.tags.map(t => decipher(password)(t.label)) : []
+      const tags = bm.tags ? bm.tags.map(t => decipher(password)(t.tag)) : []
       return <Bookmark 
         onClickDelete={deleteBookmark}
         onClickEdit={startEditMode}

@@ -1,5 +1,4 @@
 const cors = require('cors')
-const path = require('path')
 const mysql = require('mysql')
 const express = require('express')
 const body_parser = require('body-parser')
@@ -12,18 +11,17 @@ const db = mysql.createConnection(mysql_secrets)
 
 server.use(cors())
 server.use(body_parser.json())
-server.use('/smartmarks', router)
-server.use(express.static(path.join(__dirname, 'build')))
+server.use('/api', router)
 
 router.get('/bookmarks', (req, res) => {
 	let user_query = 
-		'select * from `bookmarks` where user = "'
+		'select * from `bookmarks` where `user` = "'
 		+ req.query.user_id + '"'
 	let tag_query =
 		'select * from `tags` where user = "'
 		+ req.query.user_id + '"'
 	// TODO: replace comma with semi-colon!
-	db.query(user_query, tag_query, (err, results) => {
+	db.query(user_query + '; ' + tag_query, (err, results) => {
 		if (err) {
 			console.log(err)
 			return res.status(500).send(err)
@@ -61,7 +59,7 @@ router.post('/bookmarks', (req, res) => {
 	})
 	tag_query = tag_query.replace(/.$/, ';')
 
-	db.query(bookmark_query, tag_query, (err, results) => {
+	db.query(bookmark_query + '; ' + tag_query, (err, results) => {
 		if (err) {
 			console.log(err)
 			return res.status(500).send(err)
@@ -96,10 +94,6 @@ router.delete('/bookmarks/:uid', (req, res) => {
 		}
 		return res.send(result)
 	})
-})
-
-server.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'build', 'index.html'))
 })
 
 const port = 7779

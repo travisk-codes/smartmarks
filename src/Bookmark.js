@@ -33,7 +33,7 @@ export default function Bookmark(props) {
 				</a>
 			</div>
       <div className='tags'>
-        {props.tags ? props.tags.map(tag => tag.label) : null }
+        {props.tags ? props.tags.map(t => <span>{t}</span>) : null }
       </div>
 			<div className='buttons'>
 				{renderEditButton()}
