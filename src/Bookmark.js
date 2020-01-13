@@ -13,13 +13,13 @@ export default function Bookmark(props) {
   function renderDeleteButton() {
     return isShowingButton
       ? <button onClick={() => props.onClickDelete(props.uid)}>Delete</button>
-      : <button disabled>Delete</button>
+      : <button style={{visibility: 'hidden'}} disabled>Delete</button>
 	}
 	
 	function renderEditButton() {
 		return isShowingButton
 			? <button onClick={() => props.onClickEdit(props)}>Edit</button>
-			: <button disabled>Edit</button>
+			: <button style={{visibility: 'hidden'}} disabled>Edit</button>
 	}
 
   return (
