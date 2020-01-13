@@ -25,7 +25,6 @@ export default function Bookmark(props) {
       Edit
     </button>
 	}
-
   return (
     <div 
       className='bookmark'
@@ -37,6 +36,9 @@ export default function Bookmark(props) {
 					{props.url}
 				</a>
 			</div>
+      <div className='tags'>
+        {props.tags ? props.tags.map(t => <span>{t}</span>) : null }
+      </div>
 			<div className='buttons'>
 				{renderEditButton()}
 				{renderDeleteButton()}

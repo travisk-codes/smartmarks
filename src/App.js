@@ -8,36 +8,54 @@ import { cipher, decipher } from './cipher'
 import './App.css';
 
 const bookmarks_url = 'https://travisk.info/api/bookmarks'
-
+const tags_url = 'https://travisk.info/api/tags'
     
-function Tags(props) {
-  let [ tags, setTags ] = React.useState([])
-  let [ tagOptions, setTagOptions ] = React.useState([])
+function ActiveBookmarkTagInput(props) {
+  let [ tagOptions, setTagOptions ] = React.useState([
+    { label: 'test', value: 'test' },
+    { label: 'yay', value: 'yay' },
+    { label: 'bravo', value: 'bravo' },
+  ])
 
   React.useEffect(() => {
-    // TODO load tags from db given uid
+    /*async function getTags() { try {
+      const params = { user_id: cipher(props.pass)(props.user) }
+      let url = new URL(tags_url)
+      Object.keys(params)
+        .forEach(key => url.searchParams.append(key, params[key]))
+
+      const res = await fetch(url)
+      const json = await res.text()
+
+      console.log(json)
+      setTagOptions(json)
+  
+    } catch(e) {
+      throw new Error(e)
+    }}*/
   }, [])
 
   function handleChange(newValue, actionMeta) {
-    if (actionMeta.action === 'create-option') {
-      let tag = newValue.pop().value
-      setTags(tags.concat([tag]))
+    /*if (actionMeta.action === 'create-option') {
+      const newTag = newValue.pop()
+      setTagOptions(tagOptions.concat([newTag]))
     }
+    if (actionMeta.action)
 
     console.group('Value Changed');
     console.log(newValue);
-    console.log(`action: ${actionMeta.action}`);
+    console.log(actionMeta);
     console.groupEnd();
+    */
+    props.onChange(newValue, actionMeta)
   }
 
-  function convertTagsIntoSelectObject(tags) {
-    return tags.map(tag => ({ label: tag, value: tag}))
-  }
-    
   return <Select
     isMulti
+    value={props.value}
     onChange={handleChange}
-    options={convertTagsIntoSelectObject(tags)}
+    options={tagOptions}
+    isClearable
   />
 }
 
@@ -51,6 +69,7 @@ function App() {
   let [ activeBookmark, setActiveBookmark ] = React.useState({
     url: '',
     title: '',
+    tags: [],
   })
 
   async function getBookmarks() { try {
@@ -61,7 +80,18 @@ function App() {
 
     const res = await fetch(url)
     const json = await res.json()
-    setBookmarks(json)
+    console.log(json)
+    let bookmarks = json[0]
+    let tags = json[1]
+    bookmarks.forEach(bm => {
+      bm.tags = []
+      tags.forEach(tag => {
+        if (bm.uid === tag.uid) {
+          bm.tags.push(tag)
+        }
+      })
+    })
+    setBookmarks(bookmarks)
 
   } catch(e) {
     throw new Error(e)
@@ -81,7 +111,8 @@ function App() {
       uid,
       user: cipher(password)(username),
       title: cipher(password)(activeBookmark.title),
-      url: cipher(password)(activeBookmark.url)
+      url: cipher(password)(activeBookmark.url),
+      tags: activeBookmark.tags.map(t => cipher(password)(t.label)),
     }
 
     await fetch(bookmarks_url, {
@@ -92,7 +123,7 @@ function App() {
       body: JSON.stringify(params)
     })
 
-    setActiveBookmark({url: '', title:''})
+    setActiveBookmark({url: '', title:'', tags: []})
     getBookmark(uid)
 
   } catch(e) {
@@ -213,6 +244,7 @@ function App() {
     return bookmarks.map(bm => {
       const title = decipher(password)(bm.title)
       const url = decipher(password)(bm.url)
+      const tags = bm.tags ? bm.tags.map(t => decipher(password)(t.tag)) : []
       return <Bookmark 
         onClickDelete={deleteBookmark}
         onClickEdit={startEditMode}
@@ -220,10 +252,10 @@ function App() {
         uid={bm.uid} 
         title={title} 
         url={url} 
+        tags={tags}
       />
     })
   }
-
   return (
     <div id='app-root'>
       <div id='header'>
@@ -252,7 +284,17 @@ function App() {
           value={activeBookmark.url}
         />
         <div id='tags-container'>
-          <Tags />
+          <ActiveBookmarkTagInput 
+            onChange={(value, meta) => {
+              setActiveBookmark({
+                ...activeBookmark,
+                tags: value,
+              })
+            }}
+            value={activeBookmark.tags}
+            user={username}
+            pass={password}
+          />
         </div>
 
         <button 
