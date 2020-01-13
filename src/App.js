@@ -44,6 +44,7 @@ function Tags(props) {
 function App() {
   let [ username, setUsername ] = React.useState('')
   let [ password, setPassword ] = React.useState('')
+  let [ loggedIn, setLoggedIn ] = React.useState(false)
   let [ bookmarks, setBookmarks ] = React.useState([])
   let [ inputMode, setInputMode ] = React.useState('add')
   let [ currentUid, setCurrentUid ] = React.useState('')
@@ -125,10 +126,6 @@ function App() {
   async function deleteBookmark(uid) { try {
     await fetch(bookmarks_url + '/' + uid, {
       method: 'DELETE',
-      /*headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ uid })*/
     })
 
     getBookmarks()
@@ -147,7 +144,16 @@ function App() {
       console.log('must provide password to login')
       return
     }
+    setLoggedIn(true)
     getBookmarks()
+  }
+
+  function logout(e) {
+    e.preventDefault()
+    setUsername('')
+    setPassword('')
+    setBookmarks([])
+    setLoggedIn(false)
   }
 
   function submitActiveBookmark(e) {
@@ -173,6 +179,36 @@ function App() {
     setInputMode('edit')
   }
 
+  function renderCredentialsForm() {
+    if (loggedIn) {
+      return <button>Logout</button>
+    } else {
+      return (
+        <>
+          <input
+          id='user-input'
+          onChange={e => setUsername(e.target.value)}
+          value={username}
+          />
+          <input
+            id='pass-input'
+            type='password'
+            onChange={e => {
+              setBookmarks([])
+              setPassword(e.target.value)
+            }}
+            value={password}
+          />
+
+          <button
+            disabled={!username || !password}>
+            Login
+          </button>
+        </>
+      )
+    }
+  }
+
   function renderBookmarks() {
     return bookmarks.map(bm => {
       const title = decipher(password)(bm.title)
@@ -190,33 +226,16 @@ function App() {
 
   return (
     <div id='app-root'>
-
-      <form id='credentials-form' onSubmit={submitCredentials}>
-        <p>Smartmarks</p>
-
-        <input
-          id='user-input'
-          onChange={e => setUsername(e.target.value)}
-          value={username}
-        />
-        <input
-          id='pass-input'
-          type='password'
-          onChange={e => {
-            setBookmarks([])
-            setPassword(e.target.value)
-          }}
-          value={password}
-        />
-
-        <button
-          disabled={!username || !password}>
-          Submit
-        </button>
-      </form>
+      <div id='header'>
+        <span id='title'>Smartmarks</span>
+        <form id='credentials-form'
+          onSubmit={loggedIn ? logout : submitCredentials}>
+          {renderCredentialsForm()}
+        </form>
+      </div>
 
       <form id='new-bookmark' onSubmit={submitActiveBookmark}>
-        <p>New Bookmark</p>
+        <div id='active-bookmark-section-title'>New Bookmark</div>
 
         <input
           id='new-bookmark-title'

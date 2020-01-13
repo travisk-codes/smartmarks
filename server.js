@@ -63,6 +63,7 @@ router.put('/bookmarks/:uid', (req, res) => {
 		+ req.params.uid + '"'
 	db.query(query, (err, result) => {
 		if (err) {
+			console.log(err)
 			return res.status(500).send(err)
 		}
 		return res.send(result)
@@ -70,13 +71,16 @@ router.put('/bookmarks/:uid', (req, res) => {
 })
 
 router.delete('/bookmarks/:uid', (req, res) => {
+	console.log(req.params.uid)
 	let query = 
 		'delete from `bookmarks` where `uid` = "'
 		+ req.params.uid + '"'
 	db.query(query, (err, result) => {
 		if (err) {
+			console.log(err)
 			return res.status(500).send(err)
 		}
+		console.log(result)
 		return res.send(result)
 	})
 })

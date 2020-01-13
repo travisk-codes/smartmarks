@@ -1,6 +1,21 @@
 body {
   background-color: whitesmoke;
+  box-sizing: border-box;
 }
+
+input, button {
+  font-size: 1em;
+  background-color: white;
+  font-family: inherit;
+  padding: 0.5em;
+  border-radius: 4px;
+  border: 1px solid hsl(0,0%,80%);
+}
+
+input:hover {
+  border-color: hsl(0.0%, 70%);
+}
+
 
 #app-root {
   position: fixed;
@@ -13,27 +28,64 @@ body {
   flex-direction: column;
 }
 
+#header {
+  padding: 1em;
+  display: flex;
+  justify-content: space-between;
+}
+
+#title {
+  font-size: x-large;
+}
+
 #credentials-form {
-  padding: 4em 0 0 0;
-  margin: 0 auto;
+  display: inline-flex;
+  align-items: center;
+}
+#credentials-form > button {
+  margin-left: 0.5em;
+}
+
+#credentials-form > input {
+  max-width: 10em;
+}
+
+#user-input {
+  margin-right: 0.5em;
+}
+
+#active-bookmark-section-title {
+  padding-bottom: 0.5em;
 }
 
 #new-bookmark {
   margin: 0 auto;
-  padding: 0 0 3em 0;
+  padding: 1em;
+  padding-bottom: 2em;
+}
+
+#new-bookmark-title {
+  margin-right: 0.5em;
 }
 
 .bookmark {
   display: flex;
   background-color: whitesmoke;
   padding: .75em;
-  margin: .1em 1em;
+  margin: .15em 1em;
   border-radius: .2em;
   align-items: baseline;
+  border-bottom: 1px solid lightgrey;
+}
+
+.buttons > button {
+  width: 4.5em;
+  margin-left: 0.5em;
 }
 
 .bookmark:hover {
   box-shadow: .1em .1em .1em .1em lightgrey, -.1em -.1em .1em .1em white;
+  border-bottom: 1px solid hsl(0.0%, 100%);
 }
 
 .bookmark .title {

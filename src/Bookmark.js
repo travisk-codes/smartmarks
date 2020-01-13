@@ -11,15 +11,19 @@ export default function Bookmark(props) {
   }
 
   function renderDeleteButton() {
-    return isShowingButton
-      ? <button onClick={() => props.onClickDelete(props.uid)}>Delete</button>
-      : <button style={{visibility: 'hidden'}} disabled>Delete</button>
+    return <button
+      onClick={() => props.onClickDelete(props.uid)}
+      style={{ visibility: isShowingButton ? 'visible' : 'hidden' }}>
+      Delete
+    </button>
 	}
 	
 	function renderEditButton() {
-		return isShowingButton
-			? <button onClick={() => props.onClickEdit(props)}>Edit</button>
-			: <button style={{visibility: 'hidden'}} disabled>Edit</button>
+    return <button
+      onClick={() => props.onClickEdit(props)}
+      style={{ visibility: isShowingButton ? 'visible' : 'hidden' }}>
+      Edit
+    </button>
 	}
 
   return (
