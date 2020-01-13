@@ -7,7 +7,7 @@ import Bookmark from './Bookmark'
 import { cipher, decipher } from './cipher'
 import './App.css';
 
-const bookmarks_url = 'https://travisk.info/smartmarks/bookmarks'
+const bookmarks_url = 'https://travisk.info/api/bookmarks'
 
     
 function Tags(props) {

@@ -1,3 +1,7 @@
+body {
+  background-color: whitesmoke;
+}
+
 #app-root {
   position: fixed;
   top: 0;
@@ -22,10 +26,14 @@
 .bookmark {
   display: flex;
   background-color: whitesmoke;
-  padding: 1em 1em 1em 1em;
-  margin-bottom: 1em;
-  border-bottom: 1px solid grey;
+  padding: .75em;
+  margin: .1em 1em;
+  border-radius: .2em;
   align-items: baseline;
+}
+
+.bookmark:hover {
+  box-shadow: .1em .1em .1em .1em lightgrey, -.1em -.1em .1em .1em white;
 }
 
 .bookmark .title {
