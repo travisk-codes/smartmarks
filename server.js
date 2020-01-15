@@ -26,7 +26,6 @@ router.get('/bookmarks', (req, res) => {
 			console.log(err)
 			return res.status(500).send(err)
 		}
-		console.log(results)
 		return res.send(results)
 	})
 })
@@ -73,12 +72,24 @@ router.post('/bookmarks', (req, res) => {
 })
 
 router.put('/bookmarks/:uid', (req, res) => {
-	let query =
+	let { url, tags, title, user } = req.body
+	let add_bm_query =
 		'update `bookmarks` set `title` = "' 
-		+ req.body.title + '", '
-		+ '`url` = "' + req.body.url + '" '
+		+ title + '", '
+		+ '`url` = "' + url + '" '
 		+ 'where `uid` = "'
 		+ req.params.uid + '"'
+	let remove_bm_tags_query =
+		'delete from `tags` where `uid` = "'
+		+ req.params.uid + '"'
+	let add_bm_tags_query =
+		'insert into `tags` (uid, user, tag) values '
+		tags.forEach(t => {
+			add_bm_tags_query += tagsDbEntriesToString(req.params.uid, user, t) + ','
+		})
+	add_bm_tags_query = add_bm_tags_query.replace(/.$/, ';')
+	let query = add_bm_query + '; ' + remove_bm_tags_query + '; ' + add_bm_tags_query
+	console.log(query)
 	db.query(query, (err, result) => {
 		if (err) {
 			console.log(err)
@@ -93,7 +104,9 @@ router.delete('/bookmarks/:uid', (req, res) => {
 	let query = 
 		'delete from `bookmarks` where `uid` = "'
 		+ req.params.uid + '"'
-	db.query(query, (err, result) => {
+	let tag_query =
+		'delete from `tags` where `uid` = "' + req.params.uid + '"'
+	db.query(query + '; ' + tag_query, (err, result) => {
 		if (err) {
 			console.log(err)
 			return res.status(500).send(err)

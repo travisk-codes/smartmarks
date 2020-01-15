@@ -138,7 +138,9 @@ function App() {
     const { title, url } = activeBookmark
     const params = {
       title: cipher(password)(title),
-      url: cipher(password)(url)
+      url: cipher(password)(url),
+      user: cipher(password)(username),
+      tags: activeBookmark.tags.map(t => cipher(password)(t.label)),
     }
 
     await fetch(bookmarks_url + '/' + currentUid, {
@@ -149,7 +151,7 @@ function App() {
       body: JSON.stringify(params)
     })
 
-    setActiveBookmark({url: '', title: ''})
+    setActiveBookmark({url: '', title: '', tags: []})
     setCurrentUid('')
     setInputMode('add')
     getBookmarks()
@@ -208,8 +210,10 @@ function App() {
     }
   }
 
-  function startEditMode({ uid, title, url}) {
-    setActiveBookmark({ title, url})
+  function startEditMode({ user, uid, title, url, tags}) {
+    const tagsFormattedForSelect = tags.map(t => ({ label: t, value: t}))
+    console.log(tagsFormattedForSelect)
+    setActiveBookmark({ title, url, tags: tagsFormattedForSelect })
     setCurrentUid(uid)
     setInputMode('edit')
   }
