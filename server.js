@@ -44,6 +44,17 @@ router.get('/bookmarks/:uid', (req, res) => {
 		return res.send(result)
 	})
 })
+router.get('/tags', (req, res) => {
+	let query = 'select distinct `tag` from `tags`'
+	db.query(query, (err, result) => {
+		if (err) {
+			console.log(err)
+			return res.status(500).send(err)
+		}
+		console.log(result)
+		return res.send(result)
+	})
+})
 
 function tagsDbEntriesToString(a, b, c) {
 	return '("' + a + '", "' + b + '", "' + c + '")'

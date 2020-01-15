@@ -11,11 +11,6 @@ const bookmarks_url = 'https://travisk.info/api/bookmarks'
 const tags_url = 'https://travisk.info/api/tags'
     
 function ActiveBookmarkTagInput(props) {
-  let [ tagOptions, setTagOptions ] = React.useState([
-    { label: 'test', value: 'test' },
-    { label: 'yay', value: 'yay' },
-    { label: 'bravo', value: 'bravo' },
-  ])
 
   React.useEffect(() => {
     /*async function getTags() { try {
@@ -54,7 +49,7 @@ function ActiveBookmarkTagInput(props) {
     isMulti
     value={props.value}
     onChange={handleChange}
-    options={tagOptions}
+    options={props.options}
     isClearable
   />
 }
@@ -83,6 +78,12 @@ function App() {
     title: '',
     tags: [],
   })
+  let [ tagOptions, setTagOptions ] = React.useState([
+    { label: 'test', value: 'test' },
+    { label: 'yay', value: 'yay' },
+    { label: 'bravo', value: 'bravo' },
+  ])
+
 
   async function getBookmarks() { try {
     const params = { user_id: cipher(password)(username) }
@@ -90,10 +91,19 @@ function App() {
     Object.keys(params)
       .forEach(key => url.searchParams.append(key, params[key]))
 
-    const res = await fetch(url)
-    const json = await res.json()
+    let res = await fetch(url)
+    let json = await res.json()
     const bookmarks = attachTagstoBookmarks(json[0], json[1])
     setBookmarks(bookmarks)
+
+    res = await fetch(tags_url)
+    json = await res.json()
+    console.log(json.map(t => ({label: t, value: t})))
+    setTagOptions(json.map(t => (
+      {
+        label: decipher(password)(t.tag),
+        value: decipher(password)(t.tag),
+      })))
 
   } catch(e) {
     throw new Error(e)
@@ -103,7 +113,6 @@ function App() {
     const res = await fetch(bookmarks_url + '/' + uid)
     const json = await res.json()
     const bookmark = attachTagstoBookmarks(json[0], json[1])
-    console.log(bookmark)
     setBookmarks(bookmarks.concat(bookmark))
   } catch(e) {
     throw new Error(e)
@@ -299,6 +308,7 @@ function App() {
                 tags: value,
               })
             }}
+            options={tagOptions}
             value={activeBookmark.tags}
             user={username}
             pass={password}
