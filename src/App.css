@@ -1,6 +1,10 @@
 body {
   background-color: whitesmoke;
-  box-sizing: border-box;
+  box-sizing: content-box;
+}
+
+button:hover {
+  color: #ff5050;
 }
 
 input, button {
@@ -10,6 +14,10 @@ input, button {
   padding: 0.5em;
   border-radius: 4px;
   border: 1px solid hsl(0,0%,80%);
+}
+
+button:hover, input:hover {
+  border-color: #ff5050;
 }
 
 input:hover {
@@ -39,7 +47,9 @@ input:focus {
 }
 
 #title {
-  font-size: x-large;
+  font-size: 1.75em;
+  color: #ff5050;
+  text-decoration: underline dotted #ff5050;
 }
 
 #credentials-form {
@@ -80,8 +90,7 @@ input:focus {
   background-color: whitesmoke;
   padding: .5em;
   margin: .15em 1em;
-  border-radius: .2em;
-  border-bottom: 1px solid lightgrey;
+  border-bottom: 1px dotted grey;
 }
 
 .contents-and-tags {
@@ -108,13 +117,15 @@ input:focus {
 }
 
 .bookmark:hover {
-  box-shadow: .1em .1em .1em .1em lightgrey, -.1em -.1em .1em .1em white;
-  border-bottom: 1px solid hsl(0.0%, 100%);
+  /*box-shadow: .1em .1em .1em .1em lightgrey, -.1em -.1em .1em .1em white;
+  border-bottom: 1px solid hsl(0.0%, 100%);*/
+  background-color: #fafafa;
 }
 
 .bookmark .title {
   font-size: larger;
   margin-right: 0.5em;
+  
 }
 
 .bookmark .url {
@@ -124,6 +135,10 @@ input:focus {
 .bookmark .url a {
   color: grey;
   text-decoration: unset;
+}
+
+.bookmark .url a:hover {
+  color: #ff5050;
 }
 
 .bookmark .buttons {
@@ -136,10 +151,14 @@ input:focus {
 #tags-container {
   margin: 0.5em 0;
 }
+/* TODO: better class names */
+.tags {
+  padding-top: 0.25em;
+}
 
 .tag {
   font-size: smaller;
-  background-color: hsl(0,0%,90%);
+  background-color: hsl(0, 0%, 90%);
   padding: 0.3em;
   margin: 0.1em;
   margin-right: 0.5em;
