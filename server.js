@@ -34,7 +34,10 @@ router.get('/bookmarks/:uid', (req, res) => {
 	let bookmark_query =
 		'select * from `bookmarks` where uid = "'
 		+ req.params.uid + '"'
-	db.query(bookmark_query, (err, result) => {
+	let tag_query =
+		'select * from `tags` where `uid` = "'
+		+ req.params.uid + '"'
+	db.query(bookmark_query + ';' + tag_query, (err, result) => {
 		if (err) {
 			console.log(err)
 			return res.status(500).send(err)

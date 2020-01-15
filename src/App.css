@@ -13,7 +13,11 @@ input, button {
 }
 
 input:hover {
-  border-color: hsl(0.0%, 70%);
+  border: 1px solid hsl(0.0%, 70%);
+}
+
+input:focus {
+  border: 2px solid lightskybluejson;
 }
 
 
@@ -70,12 +74,32 @@ input:hover {
 
 .bookmark {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
   background-color: whitesmoke;
-  padding: .75em;
+  padding: .5em;
   margin: .15em 1em;
   border-radius: .2em;
-  align-items: baseline;
   border-bottom: 1px solid lightgrey;
+}
+
+.contents-and-tags {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.contents {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 0.2em;
+}
+
+.contents, .tags {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
 }
 
 .buttons > button {
@@ -93,15 +117,31 @@ input:hover {
   margin-right: 0.5em;
 }
 
+.bookmark .url {
+  margin-top: 0.25em;
+}
+
 .bookmark .url a {
   color: grey;
   text-decoration: unset;
 }
 
 .bookmark .buttons {
+  display: flex;
   margin: 0 0 0 auto;
+  flex-direction: row;
+  align-items: center;
 }
 
 #tags-container {
   margin: 0.5em 0;
+}
+
+.tag {
+  font-size: smaller;
+  background-color: hsl(0,0%,90%);
+  padding: 0.3em;
+  margin: 0.1em;
+  margin-right: 0.5em;
+  border-radius: 0.25em;
 }

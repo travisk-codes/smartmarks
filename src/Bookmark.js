@@ -30,19 +30,29 @@ export default function Bookmark(props) {
       className='bookmark'
       onMouseEnter={mouseEnter}
       onMouseLeave={mouseLeave}>
-      <div className='title'>{props.title}</div>
-      <div className='url'>
-				<a href={props.url}>
-					{props.url}
-				</a>
-			</div>
-      <div className='tags'>
-        {props.tags ? props.tags.map(t => <span>{t}</span>) : null }
+
+      <div className='contents-and-tags'>
+
+        <div className='contents'>
+          <div className='title'>{props.title}</div>
+          <div className='url'>
+            <a href={props.url}>
+              {props.url}
+            </a>
+          </div>
+        </div>
+
+        <div className='tags'>
+          {props.tags ? props.tags.map(t => <span className='tag'>{t}</span>) : null }
+        </div>
+
       </div>
-			<div className='buttons'>
-				{renderEditButton()}
-				{renderDeleteButton()}
-			</div>
+
+      <div className='buttons'>
+        {renderEditButton()}
+        {renderDeleteButton()}
+      </div>
+
     </div>
   )
 }

@@ -59,6 +59,18 @@ function ActiveBookmarkTagInput(props) {
   />
 }
 
+function attachTagstoBookmarks(bookmarks, tags) {
+  bookmarks.forEach(bm => {
+    bm.tags = []
+    tags.forEach(tag => {
+      if (bm.uid === tag.uid) {
+        bm.tags.push(tag)
+      }
+    })
+  })
+  return bookmarks
+}
+
 function App() {
   let [ username, setUsername ] = React.useState('')
   let [ password, setPassword ] = React.useState('')
@@ -80,17 +92,7 @@ function App() {
 
     const res = await fetch(url)
     const json = await res.json()
-    console.log(json)
-    let bookmarks = json[0]
-    let tags = json[1]
-    bookmarks.forEach(bm => {
-      bm.tags = []
-      tags.forEach(tag => {
-        if (bm.uid === tag.uid) {
-          bm.tags.push(tag)
-        }
-      })
-    })
+    const bookmarks = attachTagstoBookmarks(json[0], json[1])
     setBookmarks(bookmarks)
 
   } catch(e) {
@@ -100,7 +102,9 @@ function App() {
   async function getBookmark(uid) { try {
     const res = await fetch(bookmarks_url + '/' + uid)
     const json = await res.json()
-    setBookmarks(bookmarks.concat(json))
+    const bookmark = attachTagstoBookmarks(json[0], json[1])
+    console.log(bookmark)
+    setBookmarks(bookmarks.concat(bookmark))
   } catch(e) {
     throw new Error(e)
   }}
