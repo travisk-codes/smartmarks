@@ -1,166 +1,167 @@
 body {
-  background-color: whitesmoke;
-  box-sizing: content-box;
+	background-color: whitesmoke;
+	box-sizing: content-box;
 }
 
 button:hover {
-  color: #ff5050;
+	color: #ff5050;
 }
 
-input, button {
-  font-size: 1em;
-  background-color: white;
-  font-family: inherit;
-  padding: 0.5em;
-  border-radius: 4px;
-  border: 1px solid hsl(0,0%,80%);
+input,
+button {
+	font-size: 1em;
+	background-color: white;
+	font-family: inherit;
+	padding: 0.5em;
+	border-radius: 4px;
+	border: 1px solid hsl(0, 0%, 80%);
 }
 
-button:hover, input:hover {
-  border-color: #ff5050;
+button:hover,
+input:hover {
+	border-color: #ff5050;
 }
 
 input:hover {
-  border: 1px solid hsl(0.0%, 70%);
+	border: 1px solid hsl(0%, 70%);
 }
 
 input:focus {
-  border: 2px solid lightskybluejson;
+	border: 2px solid lightskybluejson;
 }
 
-
 #app-root {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 #header {
-  padding: 1em;
-  display: flex;
-  justify-content: space-between;
+	padding: 1em;
+	display: flex;
+	justify-content: space-between;
 }
 
 #title {
-  font-size: 1.75em;
-  color: #ff5050;
-  text-decoration: underline dotted #ff5050;
+	font-size: 1.75em;
+	color: #ff5050;
+	text-decoration: underline dotted #ff5050;
 }
 
 #credentials-form {
-  display: inline-flex;
-  align-items: center;
+	display: inline-flex;
+	align-items: center;
 }
 #credentials-form > button {
-  margin-left: 0.5em;
+	margin-left: 0.5em;
 }
 
 #credentials-form > input {
-  max-width: 10em;
+	max-width: 10em;
 }
 
 #user-input {
-  margin-right: 0.5em;
+	margin-right: 0.5em;
 }
 
 #active-bookmark-section-title {
-  padding-bottom: 0.5em;
+	padding-bottom: 0.5em;
 }
 
 #new-bookmark {
-  margin: 0 auto;
-  padding: 1em;
-  padding-bottom: 2em;
+	margin: 0 auto;
+	padding: 1em;
+	padding-bottom: 2em;
 }
 
 #new-bookmark-title {
-  margin-right: 0.5em;
+	margin-right: 0.5em;
 }
 
 .bookmark {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: stretch;
-  background-color: whitesmoke;
-  padding: .5em;
-  margin: .15em 1em;
-  border-bottom: 1px dotted grey;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: stretch;
+	background-color: whitesmoke;
+	padding: 0.5em;
+	margin: 0.15em 1em;
+	border-bottom: 1px dotted grey;
 }
 
 .contents-and-tags {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .contents {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 0.2em;
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 0.2em;
 }
 
-.contents, .tags {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
+.contents,
+.tags {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
 }
 
 .buttons > button {
-  width: 4.5em;
-  margin-left: 0.5em;
+	width: 4.5em;
+	margin-left: 0.5em;
 }
 
 .bookmark:hover {
-  /*box-shadow: .1em .1em .1em .1em lightgrey, -.1em -.1em .1em .1em white;
+	/*box-shadow: .1em .1em .1em .1em lightgrey, -.1em -.1em .1em .1em white;
   border-bottom: 1px solid hsl(0.0%, 100%);*/
-  background-color: #fafafa;
+	background-color: #fafafa;
 }
 
 .bookmark .title {
-  font-size: larger;
-  margin-right: 0.5em;
-  
+	font-size: larger;
+	margin-right: 0.5em;
 }
 
 .bookmark .url {
-  margin-top: 0.25em;
+	margin-top: 0.25em;
 }
 
 .bookmark .url a {
-  color: grey;
-  text-decoration: unset;
+	color: grey;
+	text-decoration: unset;
 }
 
 .bookmark .url a:hover {
-  color: #ff5050;
+	color: #ff5050;
 }
 
 .bookmark .buttons {
-  display: flex;
-  margin: 0 0 0 auto;
-  flex-direction: row;
-  align-items: center;
+	display: flex;
+	margin: 0 0 0 auto;
+	flex-direction: row;
+	align-items: center;
 }
 
 #tags-container {
-  margin: 0.5em 0;
+	margin: 0.5em 0;
 }
 /* TODO: better class names */
 .tags {
-  padding-top: 0.25em;
+	padding-top: 0.25em;
 }
 
 .tag {
-  font-size: smaller;
-  background-color: hsl(0, 0%, 90%);
-  padding: 0.3em;
-  margin: 0.1em;
-  margin-right: 0.5em;
-  border-radius: 0.25em;
+	font-size: smaller;
+	background-color: hsl(0, 0%, 90%);
+	padding: 0.3em;
+	margin: 0.1em;
+	margin-right: 0.5em;
+	border-radius: 0.25em;
 }

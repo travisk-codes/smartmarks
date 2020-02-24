@@ -1,9 +1,11 @@
 # Scratch
+
 - CRUD MySQL [x]
 - REST API [x]
 - front-end [x]
 
 ## tags
+
 1. add first bookmark
 2. tags below submit
 3. enter title, url, tags
