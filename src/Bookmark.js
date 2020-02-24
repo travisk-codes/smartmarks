@@ -44,7 +44,11 @@ export default function Bookmark(props) {
 
 				<div className='tags'>
 					{props.tags
-						? props.tags.map(t => <span className='tag'>{t}</span>)
+						? props.tags.map(t => (
+								<span key={t} className='tag'>
+									{t}
+								</span>
+						  ))
 						: null}
 				</div>
 			</div>

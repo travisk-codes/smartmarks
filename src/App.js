@@ -1,58 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Select from 'react-select/creatable'
-// TODO: get tag data on mount
-
 import uuid from 'uuid/v4'
+
 import Bookmark from './Bookmark'
 import { cipher, decipher } from './cipher'
 import './App.css'
 
-const bookmarks_url = 'https://travisk.info/api/bookmarks'
-const tags_url = 'https://travisk.info/api/tags'
+let bookmarksRoute = 'https://travisk.info/api/bookmarks'
+let tagsRoute = 'https://travisk.info/api/tags'
 
-function ActiveBookmarkTagInput(props) {
-	React.useEffect(() => {
-		/*async function getTags() { try {
-      const params = { user_id: cipher(props.pass)(props.user) }
-      let url = new URL(tags_url)
-      Object.keys(params)
-        .forEach(key => url.searchParams.append(key, params[key]))
-
-      const res = await fetch(url)
-      const json = await res.text()
-
-      console.log(json)
-      setTagOptions(json)
-  
-    } catch(e) {
-      throw new Error(e)
-    }}*/
-	}, [])
-
-	function handleChange(newValue, actionMeta) {
-		/*if (actionMeta.action === 'create-option') {
-      const newTag = newValue.pop()
-      setTagOptions(tagOptions.concat([newTag]))
-    }
-    if (actionMeta.action)
-
-    console.group('Value Changed');
-    console.log(newValue);
-    console.log(actionMeta);
-    console.groupEnd();
-    */
-		props.onChange(newValue, actionMeta)
-	}
-
-	return (
-		<Select
-			isMulti
-			value={props.value}
-			onChange={handleChange}
-			options={props.options}
-			isClearable
-		/>
-	)
+function convertTagToSelectOption(tag) {
+	return { label: tag, value: tag }
 }
 
 function attachTagstoBookmarks(bookmarks, tags) {
@@ -68,9 +26,20 @@ function attachTagstoBookmarks(bookmarks, tags) {
 }
 
 function App() {
-	let [username, setUsername] = React.useState('')
-	let [password, setPassword] = React.useState('')
-	let [loggedIn, setLoggedIn] = React.useState(false)
+	let [user, setUser] = useState({
+		name: '',
+		password: '',
+		loggedIn: false,
+	})
+	let [bookmarkForm, setBookmarkForm] = useState({
+		id: '',
+		title: '',
+		url: '',
+		tags: [],
+	})
+	//let [username, setUsername] = React.useState('')
+	//let [password, setPassword] = React.useState('')
+	//let [loggedIn, setLoggedIn] = React.useState(false)
 	let [bookmarks, setBookmarks] = React.useState([])
 	let [inputMode, setInputMode] = React.useState('add')
 	let [currentUid, setCurrentUid] = React.useState('')
@@ -86,37 +55,41 @@ function App() {
 	])
 
 	async function getBookmarks() {
+		let { name, password } = user
+		let params = { user_id: cipher(password)(name) }
+		let url = new URL(bookmarksRoute)
+		Object.keys(params).forEach(key =>
+			url.searchParams.append(key, params[key]),
+		)
 		try {
-			const params = { user_id: cipher(password)(username) }
-			let url = new URL(bookmarks_url)
-			Object.keys(params).forEach(key =>
-				url.searchParams.append(key, params[key]),
-			)
-
-			let res = await fetch(url)
-			let json = await res.json()
-			const bookmarks = attachTagstoBookmarks(json[0], json[1])
+			let response = await fetch(url)
+			let [untaggedBookmarks, tags] = await response.json()
+			let bookmarks = attachTagstoBookmarks(untaggedBookmarks, tags)
 			setBookmarks(bookmarks)
+		} catch (e) {
+			throw new Error(e)
+		}
+	}
 
-			res = await fetch(tags_url)
-			json = await res.json()
-			console.log(json.map(t => ({ label: t, value: t })))
-			setTagOptions(
-				json.map(t => ({
-					label: decipher(password)(t.tag),
-					value: decipher(password)(t.tag),
-				})),
+	async function getTagOptions() {
+		try {
+			let response = await fetch(tagsRoute)
+			let json = await response.json()
+			let tagOptions = json.map(({ tag }) =>
+				convertTagToSelectOption(decipher(user.password)(tag)),
 			)
+			setTagOptions(tagOptions)
 		} catch (e) {
 			throw new Error(e)
 		}
 	}
 
 	async function getBookmark(uid) {
+		let route = `${bookmarksRoute}/${uid}`
 		try {
-			const res = await fetch(bookmarks_url + '/' + uid)
-			const json = await res.json()
-			const bookmark = attachTagstoBookmarks(json[0], json[1])
+			let response = await fetch(route)
+			let [untaggedBookmark, tags] = await response.json()
+			let bookmark = attachTagstoBookmarks(untaggedBookmark, tags)
 			setBookmarks(bookmarks.concat(bookmark))
 		} catch (e) {
 			throw new Error(e)
@@ -124,24 +97,23 @@ function App() {
 	}
 
 	async function addBookmark() {
+		let uid = uuid()
+		let { name, password } = user
+		let { title, url, tags } = activeBookmark
+		let params = {
+			uid,
+			user: cipher(password)(name),
+			title: cipher(password)(title),
+			url: cipher(password)(url),
+			tags: tags.map(t => cipher(password)(t.label)),
+		}
+		let endPoint = {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(params),
+		}
 		try {
-			const uid = uuid()
-			const params = {
-				uid,
-				user: cipher(password)(username),
-				title: cipher(password)(activeBookmark.title),
-				url: cipher(password)(activeBookmark.url),
-				tags: activeBookmark.tags.map(t => cipher(password)(t.label)),
-			}
-
-			await fetch(bookmarks_url, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(params),
-			})
-
+			await fetch(bookmarksRoute, endPoint)
 			setActiveBookmark({ url: '', title: '', tags: [] })
 			getBookmark(uid)
 		} catch (e) {
@@ -150,39 +122,39 @@ function App() {
 	}
 
 	async function updateBookmark() {
+		let { name, password } = user
+		let { title, url, tags } = activeBookmark
+		let route = `${bookmarksRoute}/${currentUid}`
+		let params = {
+			title: cipher(password)(title),
+			url: cipher(password)(url),
+			user: cipher(password)(name),
+			tags: tags.map(t => cipher(password)(t.label)),
+		}
+		let endPoint = {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(params),
+		}
 		try {
-			const { title, url } = activeBookmark
-			const params = {
-				title: cipher(password)(title),
-				url: cipher(password)(url),
-				user: cipher(password)(username),
-				tags: activeBookmark.tags.map(t => cipher(password)(t.label)),
-			}
-
-			await fetch(bookmarks_url + '/' + currentUid, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(params),
-			})
-
+			await fetch(route, endPoint)
 			setActiveBookmark({ url: '', title: '', tags: [] })
 			setCurrentUid('')
 			setInputMode('add')
 			getBookmarks()
+			getTagOptions()
 		} catch (e) {
 			throw new Error(e)
 		}
 	}
 
 	async function deleteBookmark(uid) {
+		let route = `${bookmarksRoute}/${uid}`
+		let endPoint = { method: 'DELETE' }
 		try {
-			await fetch(bookmarks_url + '/' + uid, {
-				method: 'DELETE',
-			})
-
+			await fetch(route, endPoint)
 			getBookmarks()
+			getTagOptions()
 		} catch (e) {
 			throw new Error(e)
 		}
@@ -190,144 +162,147 @@ function App() {
 
 	function submitCredentials(e) {
 		e.preventDefault()
-		if (!username) {
-			console.log('must provide username to login')
-			return
-		}
-		if (!password) {
-			console.log('must provide password to login')
-			return
-		}
-		setLoggedIn(true)
+		setUser({
+			...user,
+			loggedIn: true,
+		})
 		getBookmarks()
+		getTagOptions()
 	}
 
 	function logout(e) {
 		e.preventDefault()
-		setUsername('')
-		setPassword('')
 		setBookmarks([])
-		setLoggedIn(false)
-	}
-
-	function submitActiveBookmark(e) {
-		e.preventDefault()
-		if (!activeBookmark.title || !activeBookmark.url) {
-			console.log('need both title and url to submit bookmark')
-			return
-		}
-		if (!username || !password) {
-			console.log('must sign in to submit bookmark')
-			return
-		}
-		if (inputMode === 'add') {
-			addBookmark()
-		} else {
-			updateBookmark()
-		}
+		setUser({
+			name: '',
+			password: '',
+			loggedIn: false,
+		})
 	}
 
 	function startEditMode({ user, uid, title, url, tags }) {
 		const tagsFormattedForSelect = tags.map(t => ({ label: t, value: t }))
-		console.log(tagsFormattedForSelect)
 		setActiveBookmark({ title, url, tags: tagsFormattedForSelect })
 		setCurrentUid(uid)
 		setInputMode('edit')
 	}
 
 	function renderCredentialsForm() {
-		if (loggedIn) {
-			return <button>Logout</button>
-		} else {
-			return (
-				<>
-					<input
-						id='user-input'
-						onChange={e => setUsername(e.target.value)}
-						value={username}
-					/>
-					<input
-						id='pass-input'
-						type='password'
-						onChange={e => {
-							setBookmarks([])
-							setPassword(e.target.value)
-						}}
-						value={password}
-					/>
-
-					<button disabled={!username || !password}>Login</button>
-				</>
-			)
+		let { name, password, loggedIn } = user
+		if (loggedIn) return <button>Logout</button>
+		function updateUsername(e) {
+			setUser({
+				...user,
+				name: e.target.value,
+			})
 		}
+		function updatePassword(e) {
+			setBookmarks([])
+			setUser({
+				...user,
+				password: e.target.value,
+			})
+		}
+		let usernameInput = (
+			<input
+				id='user-input'
+				autoComplete='username'
+				onChange={updateUsername}
+				value={name}
+			/>
+		)
+		let passwordInput = (
+			<input
+				id='pass-input'
+				type='password'
+				autoComplete='current-password'
+				onChange={updatePassword}
+				value={password}
+			/>
+		)
+		return (
+			<>
+				{usernameInput}
+				{passwordInput}
+				<button disabled={!name || !password}>Login</button>
+			</>
+		)
 	}
 
 	function renderBookmarks() {
-		return bookmarks.map(bm => {
-			const title = decipher(password)(bm.title)
-			const url = decipher(password)(bm.url)
-			const tags = bm.tags ? bm.tags.map(t => decipher(password)(t.tag)) : []
+		function renderBookmark(encryptedBookmark) {
+			let { title, url, tags, uid } = encryptedBookmark
 			return (
 				<Bookmark
 					onClickDelete={deleteBookmark}
 					onClickEdit={startEditMode}
-					key={bm.uid}
-					uid={bm.uid}
-					title={title}
-					url={url}
-					tags={tags}
+					key={uid}
+					uid={uid}
+					title={decipher(user.password)(title)}
+					url={decipher(user.password)(url)}
+					tags={tags ? tags.map(({ tag }) => decipher(user.password)(tag)) : []}
 				/>
 			)
-		})
+		}
+		return bookmarks.map(renderBookmark)
 	}
+
+	function renderBookmarkForm() {
+		let { title, url, tags } = activeBookmark
+		function updateTitle(e) {
+			setActiveBookmark({
+				...activeBookmark,
+				title: e.target.value,
+			})
+		}
+		function updateUrl(e) {
+			setActiveBookmark({
+				...activeBookmark,
+				url: e.target.value,
+			})
+		}
+		function updateTags(value, meta) {
+			setActiveBookmark({
+				...activeBookmark,
+				tags: value,
+			})
+		}
+		function submitActiveBookmark(e) {
+			e.preventDefault()
+			inputMode === 'add' ? addBookmark() : updateBookmark()
+		}
+		return (
+			<form id='new-bookmark' onSubmit={submitActiveBookmark}>
+				<div id='active-bookmark-section-title'>New Bookmark</div>
+				<input id='new-bookmark-title' onChange={updateTitle} value={title} />
+				<input id='new-bookmark-url' onChange={updateUrl} value={url} />
+				<div id='tags-container'>
+					<Select
+						isMulti
+						value={tags}
+						onChange={updateTags}
+						options={tagOptions}
+						isClearable
+					/>
+				</div>
+				<button disabled={!title || !url}>
+					{inputMode === 'add' ? 'Add Bookmark' : 'Edit Bookmark'}
+				</button>
+			</form>
+		)
+	}
+
 	return (
 		<div id='app-root'>
 			<div id='header'>
 				<span id='title'>Smartmarks</span>
 				<form
 					id='credentials-form'
-					onSubmit={loggedIn ? logout : submitCredentials}>
+					onSubmit={user.loggedIn ? logout : submitCredentials}>
 					{renderCredentialsForm()}
 				</form>
 			</div>
-
-			<form id='new-bookmark' onSubmit={submitActiveBookmark}>
-				<div id='active-bookmark-section-title'>New Bookmark</div>
-
-				<input
-					id='new-bookmark-title'
-					onChange={e =>
-						setActiveBookmark({ ...activeBookmark, title: e.target.value })
-					}
-					value={activeBookmark.title}
-				/>
-				<input
-					id='new-bookmark-url'
-					onChange={e =>
-						setActiveBookmark({ ...activeBookmark, url: e.target.value })
-					}
-					value={activeBookmark.url}
-				/>
-				<div id='tags-container'>
-					<ActiveBookmarkTagInput
-						onChange={(value, meta) => {
-							setActiveBookmark({
-								...activeBookmark,
-								tags: value,
-							})
-						}}
-						options={tagOptions}
-						value={activeBookmark.tags}
-						user={username}
-						pass={password}
-					/>
-				</div>
-
-				<button disabled={!activeBookmark.title || !activeBookmark.url}>
-					{inputMode === 'add' ? 'Add Bookmark' : 'Edit Bookmark'}
-				</button>
-			</form>
-
+			{renderBookmarkForm()}
 			{renderBookmarks()}
 		</div>
 	)
