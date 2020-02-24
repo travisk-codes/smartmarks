@@ -9,8 +9,9 @@ import './App.css'
 let bookmarksRoute = 'https://travisk.info/api/bookmarks'
 let tagsRoute = 'https://travisk.info/api/tags'
 
-function convertTagToSelectOption(tag) {
-	return { label: tag, value: tag }
+function formatTagsForSelect(tags) {
+	if (!tags instanceof Array) return { label: tags, value: tags }
+	return tags.map(t => ({ label: t, value: t }))
 }
 
 function attachTagstoBookmarks(bookmarks, tags) {
@@ -26,6 +27,7 @@ function attachTagstoBookmarks(bookmarks, tags) {
 }
 
 function App() {
+	let [bookmarks, setBookmarks] = React.useState([])
 	let [user, setUser] = useState({
 		name: '',
 		password: '',
@@ -36,17 +38,7 @@ function App() {
 		title: '',
 		url: '',
 		tags: [],
-	})
-	//let [username, setUsername] = React.useState('')
-	//let [password, setPassword] = React.useState('')
-	//let [loggedIn, setLoggedIn] = React.useState(false)
-	let [bookmarks, setBookmarks] = React.useState([])
-	let [inputMode, setInputMode] = React.useState('add')
-	let [currentUid, setCurrentUid] = React.useState('')
-	let [activeBookmark, setActiveBookmark] = React.useState({
-		url: '',
-		title: '',
-		tags: [],
+		inputMode: 'add',
 	})
 	let [tagOptions, setTagOptions] = React.useState([
 		{ label: 'test', value: 'test' },
@@ -75,10 +67,8 @@ function App() {
 		try {
 			let response = await fetch(tagsRoute)
 			let json = await response.json()
-			let tagOptions = json.map(({ tag }) =>
-				convertTagToSelectOption(decipher(user.password)(tag)),
-			)
-			setTagOptions(tagOptions)
+			let tags = json.map(({ tag }) => decipher(user.password)(tag))
+			setTagOptions(formatTagsForSelect(tags))
 		} catch (e) {
 			throw new Error(e)
 		}
@@ -99,7 +89,7 @@ function App() {
 	async function addBookmark() {
 		let uid = uuid()
 		let { name, password } = user
-		let { title, url, tags } = activeBookmark
+		let { title, url, tags } = bookmarkForm
 		let params = {
 			uid,
 			user: cipher(password)(name),
@@ -114,7 +104,7 @@ function App() {
 		}
 		try {
 			await fetch(bookmarksRoute, endPoint)
-			setActiveBookmark({ url: '', title: '', tags: [] })
+			setBookmarkForm({ url: '', title: '', tags: [] })
 			getBookmark(uid)
 		} catch (e) {
 			throw new Error(e)
@@ -123,8 +113,8 @@ function App() {
 
 	async function updateBookmark() {
 		let { name, password } = user
-		let { title, url, tags } = activeBookmark
-		let route = `${bookmarksRoute}/${currentUid}`
+		let { id, title, url, tags } = bookmarkForm
+		let route = `${bookmarksRoute}/${id}`
 		let params = {
 			title: cipher(password)(title),
 			url: cipher(password)(url),
@@ -138,9 +128,13 @@ function App() {
 		}
 		try {
 			await fetch(route, endPoint)
-			setActiveBookmark({ url: '', title: '', tags: [] })
-			setCurrentUid('')
-			setInputMode('add')
+			setBookmarkForm({
+				id: '',
+				title: '',
+				url: '',
+				tags: [],
+				inputMode: 'add',
+			})
 			getBookmarks()
 			getTagOptions()
 		} catch (e) {
@@ -180,11 +174,14 @@ function App() {
 		})
 	}
 
-	function startEditMode({ user, uid, title, url, tags }) {
-		const tagsFormattedForSelect = tags.map(t => ({ label: t, value: t }))
-		setActiveBookmark({ title, url, tags: tagsFormattedForSelect })
-		setCurrentUid(uid)
-		setInputMode('edit')
+	function startEditMode({ id, title, url, tags }) {
+		setBookmarkForm({
+			id,
+			title,
+			url,
+			tags: formatTagsForSelect(tags),
+			inputMode: 'edit',
+		})
 	}
 
 	function renderCredentialsForm() {
@@ -248,22 +245,22 @@ function App() {
 	}
 
 	function renderBookmarkForm() {
-		let { title, url, tags } = activeBookmark
+		let { title, url, tags, inputMode } = bookmarkForm
 		function updateTitle(e) {
-			setActiveBookmark({
-				...activeBookmark,
+			setBookmarkForm({
+				...bookmarkForm,
 				title: e.target.value,
 			})
 		}
 		function updateUrl(e) {
-			setActiveBookmark({
-				...activeBookmark,
+			setBookmarkForm({
+				...bookmarkForm,
 				url: e.target.value,
 			})
 		}
 		function updateTags(value, meta) {
-			setActiveBookmark({
-				...activeBookmark,
+			setBookmarkForm({
+				...bookmarkForm,
 				tags: value,
 			})
 		}
