@@ -27,7 +27,7 @@ function attachTagstoBookmarks(bookmarks, tags) {
 }
 
 function App() {
-	let [bookmarks, setBookmarks] = React.useState([])
+	let [bookmarks, setBookmarks] = useState([])
 	let [user, setUser] = useState({
 		name: '',
 		password: '',
@@ -40,7 +40,7 @@ function App() {
 		tags: [],
 		inputMode: 'add',
 	})
-	let [tagOptions, setTagOptions] = React.useState([
+	let [tagOptions, setTagOptions] = useState([
 		{ label: 'test', value: 'test' },
 		{ label: 'yay', value: 'yay' },
 		{ label: 'bravo', value: 'bravo' },
@@ -184,7 +184,7 @@ function App() {
 		})
 	}
 
-	function renderCredentialsForm() {
+	function renderLoginForm() {
 		let { name, password, loggedIn } = user
 		if (loggedIn) return <button>Logout</button>
 		function updateUsername(e) {
@@ -202,6 +202,7 @@ function App() {
 		}
 		let usernameInput = (
 			<input
+				size='10'
 				id='user-input'
 				autoComplete='username'
 				onChange={updateUsername}
@@ -210,6 +211,7 @@ function App() {
 		)
 		let passwordInput = (
 			<input
+				size='10'
 				id='pass-input'
 				type='password'
 				autoComplete='current-password'
@@ -293,10 +295,12 @@ function App() {
 		<div id='app-root'>
 			<div id='header'>
 				<span id='title'>Smartmarks</span>
+				<div id='header-spacer' />
+				{/* <div id='credentials-form' /> */}
 				<form
 					id='credentials-form'
 					onSubmit={user.loggedIn ? logout : submitCredentials}>
-					{renderCredentialsForm()}
+					{renderLoginForm()}
 				</form>
 			</div>
 			{renderBookmarkForm()}
