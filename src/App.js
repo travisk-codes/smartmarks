@@ -270,6 +270,14 @@ function App() {
 			e.preventDefault()
 			inputMode === 'add' ? addBookmark() : updateBookmark()
 		}
+		let selectTheme = theme => ({
+			...theme,
+			colors: {
+				...theme.colors,
+				primary: '#ff5050',
+				primary25: '#ffdddd',
+			},
+		})
 		return (
 			<form id='new-bookmark' onSubmit={submitActiveBookmark}>
 				<div id='active-bookmark-section-title'>New Bookmark</div>
@@ -282,12 +290,32 @@ function App() {
 						onChange={updateTags}
 						options={tagOptions}
 						isClearable
+						theme={selectTheme}
 					/>
 				</div>
 				<button disabled={!title || !url}>
 					{inputMode === 'add' ? 'Add Bookmark' : 'Edit Bookmark'}
 				</button>
 			</form>
+		)
+	}
+
+	function renderPitch() {
+		return (
+			<div>
+				<div className='pitch'>
+					Smartmarks is a client-side encrypted bookmarks app. Your data is
+					secured before it is sent to the server, and your password never
+					leaves your computer.
+				</div>
+				<div className='pitch'>
+					Smartmarks is made by Travis Kohlbeck. You can donate to their{' '}
+					<a href='https://patreon.com/travisk_creates'>Patreon</a> or if you
+					are looking to hire, check out their{' '}
+					<a href='https://hire.travisk.info'>portfolio.</a> Thanks for
+					visiting! ❤️
+				</div>
+			</div>
 		)
 	}
 
@@ -305,6 +333,7 @@ function App() {
 			</div>
 			{renderBookmarkForm()}
 			{renderBookmarks()}
+			{renderPitch()}
 		</div>
 	)
 }
