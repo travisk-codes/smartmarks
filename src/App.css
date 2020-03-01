@@ -46,6 +46,7 @@ input:focus {
 	margin-top: 0.5em;
 	color: #ff5050;
 	text-decoration: underline dotted #ff5050;
+	cursor: default;
 }
 
 #header-spacer {
@@ -133,14 +134,13 @@ input:focus {
 }
 
 .bookmark:hover {
-	/*box-shadow: .1em .1em .1em .1em lightgrey, -.1em -.1em .1em .1em white;
-  border-bottom: 1px solid hsl(0.0%, 100%);*/
 	background-color: #fafafa;
 }
 
 .bookmark .title {
 	font-size: larger;
 	margin-right: 0.5em;
+	cursor: default;
 }
 
 .bookmark .url {
@@ -185,6 +185,7 @@ input:focus {
 	text-align: center;
 	font-size: 1.125em;
 	color: slategray;
+	cursor: default;
 }
 
 a {
