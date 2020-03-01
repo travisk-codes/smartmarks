@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Select from 'react-select/creatable'
 import uuid from 'uuid/v4'
 
@@ -27,12 +27,12 @@ function attachTagstoBookmarks(bookmarks, tags) {
 }
 
 function App() {
-	let [bookmarks, setBookmarks] = useState([])
 	let [user, setUser] = useState({
-		name: '',
-		password: '',
-		loggedIn: false,
+		name: localStorage.getItem('username') || '',
+		password: localStorage.getItem('password') || '',
+		loggedIn: localStorage.getItem('loggedIn') === 'true' || false,
 	})
+	let [bookmarks, setBookmarks] = useState([])
 	let [bookmarkForm, setBookmarkForm] = useState({
 		id: '',
 		title: '',
@@ -45,6 +45,12 @@ function App() {
 		{ label: 'yay', value: 'yay' },
 		{ label: 'bravo', value: 'bravo' },
 	])
+
+	useEffect(() => {
+		if (user.loggedIn) {
+			getBookmarks()
+		}
+	}, [getBookmarks, user.loggedIn])
 
 	async function getBookmarks() {
 		let { name, password } = user
@@ -156,6 +162,9 @@ function App() {
 
 	function submitCredentials(e) {
 		e.preventDefault()
+		localStorage.setItem('loggedIn', 'true')
+		localStorage.setItem('username', user.name)
+		localStorage.setItem('password', user.password)
 		setUser({
 			...user,
 			loggedIn: true,
@@ -166,6 +175,9 @@ function App() {
 
 	function logout(e) {
 		e.preventDefault()
+		localStorage.setItem('loggedIn', 'false')
+		localStorage.setItem('username', '')
+		localStorage.setItem('password', '')
 		setBookmarks([])
 		setUser({
 			name: '',
@@ -228,6 +240,20 @@ function App() {
 		)
 	}
 
+	function renderHeader() {
+		return (
+			<div id='header'>
+				<span id='title'>Smartmarks</span>
+				<div id='header-spacer' />
+				<form
+					id='credentials-form'
+					onSubmit={user.loggedIn ? logout : submitCredentials}>
+					{renderLoginForm()}
+				</form>
+			</div>
+		)
+	}
+
 	function renderBookmarks() {
 		function renderBookmark(encryptedBookmark) {
 			let { title, url, tags, uid } = encryptedBookmark
@@ -280,9 +306,18 @@ function App() {
 		})
 		return (
 			<form id='new-bookmark' onSubmit={submitActiveBookmark}>
-				<div id='active-bookmark-section-title'>New Bookmark</div>
-				<input id='new-bookmark-title' onChange={updateTitle} value={title} />
-				<input id='new-bookmark-url' onChange={updateUrl} value={url} />
+				<input
+					placeholder='New bookmark'
+					id='new-bookmark-title'
+					onChange={updateTitle}
+					value={title}
+				/>
+				<input
+					placeholder='URL'
+					id='new-bookmark-url'
+					onChange={updateUrl}
+					value={url}
+				/>
 				<div id='tags-container'>
 					<Select
 						isMulti
@@ -291,10 +326,11 @@ function App() {
 						options={tagOptions}
 						isClearable
 						theme={selectTheme}
+						placeholder='Select Tags...'
 					/>
 				</div>
 				<button disabled={!title || !url}>
-					{inputMode === 'add' ? 'Add Bookmark' : 'Edit Bookmark'}
+					{inputMode === 'add' ? 'Add Bookmark' : 'Save Bookmark'}
 				</button>
 			</form>
 		)
@@ -321,18 +357,9 @@ function App() {
 
 	return (
 		<div id='app-root'>
-			<div id='header'>
-				<span id='title'>Smartmarks</span>
-				<div id='header-spacer' />
-				{/* <div id='credentials-form' /> */}
-				<form
-					id='credentials-form'
-					onSubmit={user.loggedIn ? logout : submitCredentials}>
-					{renderLoginForm()}
-				</form>
-			</div>
-			{renderBookmarkForm()}
+			{renderHeader()}
 			{renderBookmarks()}
+			{user.loggedIn ? renderBookmarkForm() : null}
 			{renderPitch()}
 		</div>
 	)

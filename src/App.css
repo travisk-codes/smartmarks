@@ -1,5 +1,5 @@
 body {
-	background-color: whitesmoke;
+	background-color: #fafafa;
 	box-sizing: content-box;
 }
 
@@ -38,7 +38,7 @@ input:focus {
 	display: flex;
 	justify-content: space-between;
 	flex-wrap: wrap;
-	margin: 0 1em;
+	margin: 0 1em 1em 1em;
 }
 
 #title {
@@ -91,9 +91,14 @@ input:focus {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: stretch;
-	background-color: whitesmoke;
 	padding: 0.5em;
 	margin: 0.15em 1em;
+	border-top: 1px solid #fafafa;
+	border-bottom: 1px solid #fafafa;
+}
+
+.bookmark:hover {
+	border-top: 1px dotted grey;
 	border-bottom: 1px dotted grey;
 }
 
@@ -107,6 +112,12 @@ input:focus {
 	display: flex;
 	flex-wrap: wrap;
 	margin-bottom: 0.2em;
+	align-items: center;
+}
+
+.favicon {
+	padding-right: 0.25em;
+	align-self: center;
 }
 
 .contents,

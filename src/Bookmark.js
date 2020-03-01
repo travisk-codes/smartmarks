@@ -36,9 +36,15 @@ export default function Bookmark(props) {
 			onMouseLeave={mouseLeave}>
 			<div className='contents-and-tags'>
 				<div className='contents'>
+					<img
+						className='favicon'
+						src={`http://www.google.com/s2/favicons?domain=${props.url}`}
+					/>
 					<div className='title'>{props.title}</div>
 					<div className='url'>
-						<a href={props.url}>{props.url}</a>
+						<a target='_blank' rel='noopener noreferrer' href={props.url}>
+							{props.url}
+						</a>
 					</div>
 				</div>
 
