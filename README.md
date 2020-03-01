@@ -11,5 +11,5 @@
 - ~~fetch favicon for links?~~
 - share links
 - share tags
-- change cursor for some texts
+- ~~change cursor for some texts~~
 - ~~remember if logged in~~

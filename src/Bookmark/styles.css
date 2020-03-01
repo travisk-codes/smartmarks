@@ -1,0 +1,57 @@
+.bookmark {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: stretch;
+	padding: 0.5em;
+	margin: 0.15em 1em;
+}
+
+.bookmark:hover {
+	background-color: white;
+}
+
+.contents-and-tags {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.contents {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 0.2em;
+	align-items: center;
+}
+
+.favicon {
+	padding-right: 0.3em;
+	align-self: center;
+}
+
+.contents,
+.tags {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+}
+
+.tags {
+	padding-top: 0.25em;
+}
+
+.tag {
+	font-size: smaller;
+	background-color: hsl(0, 0%, 90%);
+	padding: 0.3em;
+	margin: 0.1em;
+	margin-right: 0.5em;
+	border-radius: 0.25em;
+}
+
+.bookmark .buttons {
+	display: flex;
+	margin: 0 0 0 auto;
+	flex-direction: row;
+	align-items: center;
+}

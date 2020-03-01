@@ -30,7 +30,7 @@ function App() {
 	let [user, setUser] = useState({
 		name: localStorage.getItem('username') || '',
 		password: localStorage.getItem('password') || '',
-		loggedIn: localStorage.getItem('loggedIn') === 'true' || false,
+		loggedIn: localStorage.getItem('loggedIn') === 'true',
 	})
 	let [bookmarks, setBookmarks] = useState([])
 	let [bookmarkForm, setBookmarkForm] = useState({
@@ -175,10 +175,10 @@ function App() {
 
 	function logout(e) {
 		e.preventDefault()
+		setBookmarks([])
 		localStorage.setItem('loggedIn', 'false')
 		localStorage.setItem('username', '')
 		localStorage.setItem('password', '')
-		setBookmarks([])
 		setUser({
 			name: '',
 			password: '',
@@ -318,7 +318,7 @@ function App() {
 					onChange={updateUrl}
 					value={url}
 				/>
-				<div id='tags-container'>
+				<div id='select-tags-container'>
 					<Select
 						isMulti
 						value={tags}

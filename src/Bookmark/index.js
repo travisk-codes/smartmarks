@@ -1,5 +1,7 @@
 import React from 'react'
 
+import './styles.css'
+
 export default function Bookmark(props) {
 	let [isShowingButton, showButton] = React.useState(false)
 
@@ -10,25 +12,22 @@ export default function Bookmark(props) {
 		showButton(false)
 	}
 
-	function renderDeleteButton() {
-		return (
-			<button
-				onClick={() => props.onClickDelete(props.uid)}
-				style={{ visibility: isShowingButton ? 'visible' : 'hidden' }}>
-				Delete
-			</button>
-		)
-	}
+	let renderDeleteButton = () => (
+		<button
+			onClick={() => props.onClickDelete(props.uid)}
+			style={{ visibility: isShowingButton ? 'visible' : 'hidden' }}>
+			Delete
+		</button>
+	)
 
-	function renderEditButton() {
-		return (
-			<button
-				onClick={() => props.onClickEdit(props)}
-				style={{ visibility: isShowingButton ? 'visible' : 'hidden' }}>
-				Edit
-			</button>
-		)
-	}
+	let renderEditButton = () => (
+		<button
+			onClick={() => props.onClickEdit(props)}
+			style={{ visibility: isShowingButton ? 'visible' : 'hidden' }}>
+			Edit
+		</button>
+	)
+
 	return (
 		<div
 			className='bookmark'
@@ -37,6 +36,7 @@ export default function Bookmark(props) {
 			<div className='contents-and-tags'>
 				<div className='contents'>
 					<img
+						alt='Bookmark Favicon'
 						className='favicon'
 						src={`http://www.google.com/s2/favicons?domain=${props.url}`}
 					/>
