@@ -57,6 +57,11 @@ function tagsDbEntriesToString(a, b, c) {
 
 router.post('/bookmarks', (req, res) => {
 	let { uid, user, title, url, tags } = req.body
+
+	/* 	let bookmark_query = [
+		'insert into '
+	]
+ */
 	let bookmark_query =
 		'insert into `bookmarks` (uid, user, title, url) values ("' +
 		uid +
@@ -68,7 +73,7 @@ router.post('/bookmarks', (req, res) => {
 		url +
 		'")'
 	let tag_query = 'insert into `tags` (uid, user, tag) values '
-	req.body.tags.forEach(t => {
+	tags.forEach(t => {
 		tag_query += tagsDbEntriesToString(uid, user, t) + ','
 	})
 	tag_query = tag_query.replace(/.$/, ';')
@@ -114,17 +119,14 @@ router.put('/bookmarks/:uid', (req, res) => {
 })
 
 router.delete('/bookmarks/:uid', (req, res) => {
-	console.log(req.params.uid)
-	let query = 'delete from `bookmarks` where `uid` = "' + req.params.uid + '"'
-	let tag_query = 'delete from `tags` where `uid` = "' + req.params.uid + '"'
-	db.query(query + '; ' + tag_query, (err, result) => {
-		if (err) {
-			console.log(err)
-			return res.status(500).send(err)
-		}
-		console.log(result)
+	let { uid } = req.params
+	let sql =
+		'delete from bookmarks where uid = ?; delete from tags where uid = ?'
+	let callback = (err, result) => {
+		if (err) return res.status(500).send(err)
 		return res.send(result)
-	})
+	}
+	db.query(sql, [uid, uid], callback)
 })
 
 const port = 7779
