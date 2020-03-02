@@ -51,7 +51,7 @@ router.get('/tags', (req, res) => {
 })
 
 function tagsDbEntriesToString(a, b, c) {
-	return '("' + a + '", "' + b + '", "' + c + '")'
+	return `("${a}", "${b}", "${c}")`
 }
 
 router.post('/bookmarks', (req, res) => {
@@ -105,31 +105,17 @@ router.post('/bookmarks', (req, res) => {
 
 router.put('/bookmarks/:uid', (req, res) => {
 	let { url, tags, title, user } = req.body
-	let query
-	let add_bm_query =
-		'update `bookmarks` set `title` = "' +
-		title +
-		'", ' +
-		'`url` = "' +
-		url +
-		'" ' +
-		'where `uid` = "' +
-		req.params.uid +
-		'"'
-	if (!tags.length) {
-		query = add_bm_query
-	} else {
-		let remove_bm_tags_query =
-			'delete from `tags` where `uid` = "' + req.params.uid + '"'
-		let add_bm_tags_query = 'insert into `tags` (uid, user, tag) values '
-		tags.forEach(t => {
-			add_bm_tags_query += tagsDbEntriesToString(req.params.uid, user, t) + ','
+	let { uid } = req.params
+	let query = `update bookmarks set title="${title}", url="${url}" where uid="${uid}";`
+	if (tags.length) {
+		let removeTagsQuery = `delete from tags where uid="${uid}"`
+		let addTagsQuery = `insert into tags (uid, user, tag) values`
+		tags.forEach(tag => {
+			addTagsQuery += `("${uid}", "${user}", "${tag}"),`
 		})
-		add_bm_tags_query = add_bm_tags_query.replace(/.$/, ';')
-		query =
-			add_bm_query + '; ' + remove_bm_tags_query + '; ' + add_bm_tags_query
+		addTagsQuery = addTagsQuery.replace(/.$/, ';')
+		query += removeTagsQuery + ';' + addTagsQuery
 	}
-	console.log(query)
 	db.query(query, (err, result) => {
 		if (err) {
 			console.log(err)

@@ -9,6 +9,7 @@
 - tag filter
 - import/export (find format of other bookmark apps?)
 - ~~fetch favicon for links?~~
+- reposiition favicons
 - share links
 - share tags
 - ~~change cursor for some texts~~
