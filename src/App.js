@@ -34,7 +34,7 @@ function App() {
 	})
 	let [bookmarks, setBookmarks] = useState([])
 	let [bookmarkForm, setBookmarkForm] = useState({
-		id: '',
+		uid: '',
 		title: '',
 		url: '',
 		tags: [],
@@ -116,8 +116,8 @@ function App() {
 
 	async function updateBookmark() {
 		let { name, password } = user
-		let { id, title, url, tags } = bookmarkForm
-		let route = `${bookmarksRoute}/${id}`
+		let { uid, title, url, tags } = bookmarkForm
+		let route = `${bookmarksRoute}/${uid}`
 		let params = {
 			title: cipher(password)(title),
 			url: cipher(password)(url),
@@ -132,7 +132,7 @@ function App() {
 		try {
 			await fetch(route, endPoint)
 			setBookmarkForm({
-				id: '',
+				uid: '',
 				title: '',
 				url: '',
 				tags: [],
@@ -183,9 +183,9 @@ function App() {
 		})
 	}
 
-	function startEditMode({ id, title, url, tags }) {
+	function startEditMode({ uid, title, url, tags }) {
 		setBookmarkForm({
-			id,
+			uid,
 			title,
 			url,
 			tags: formatTagsForSelect(tags),

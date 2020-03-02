@@ -18,7 +18,6 @@ router.get('/bookmarks', (req, res) => {
 		'select * from `bookmarks` where `user` = "' + req.query.user_id + '"'
 	let tag_query =
 		'select * from `tags` where user = "' + req.query.user_id + '"'
-	// TODO: replace comma with semi-colon!
 	db.query(user_query + '; ' + tag_query, (err, results) => {
 		if (err) {
 			console.log(err)
@@ -58,9 +57,22 @@ function tagsDbEntriesToString(a, b, c) {
 router.post('/bookmarks', (req, res) => {
 	let { uid, user, title, url, tags } = req.body
 
-	/* 	let bookmark_query = [
-		'insert into '
+	/* 	let sql = [
+		'insert into bookmarks SET',
+		' uid=?',
+		',user=?',
+		',title=?',
+		',url=?',
+		';',
 	]
+	if (tags) {
+		sql.concat(tags.map(tag => (
+			[
+				'insert into tags SET',
+				' uid=?',
+			]
+		)))
+	}
  */
 	let bookmark_query =
 		'insert into `bookmarks` (uid, user, title, url) values ("' +
@@ -72,13 +84,17 @@ router.post('/bookmarks', (req, res) => {
 		'", "' +
 		url +
 		'")'
-	let tag_query = 'insert into `tags` (uid, user, tag) values '
-	tags.forEach(t => {
-		tag_query += tagsDbEntriesToString(uid, user, t) + ','
-	})
-	tag_query = tag_query.replace(/.$/, ';')
+	let tag_query
+	if (tags.length) {
+		tag_query = 'insert into `tags` (uid, user, tag) values '
+		tags.forEach(t => {
+			tag_query += tagsDbEntriesToString(uid, user, t) + ','
+		})
+		tag_query = tag_query.replace(/.$/, ';')
+		bookmark_query += ';' + tag_query
+	}
 
-	db.query(bookmark_query + '; ' + tag_query, (err, results) => {
+	db.query(bookmark_query, (err, results) => {
 		if (err) {
 			console.log(err)
 			return res.status(500).send(err)
@@ -89,6 +105,7 @@ router.post('/bookmarks', (req, res) => {
 
 router.put('/bookmarks/:uid', (req, res) => {
 	let { url, tags, title, user } = req.body
+	let query
 	let add_bm_query =
 		'update `bookmarks` set `title` = "' +
 		title +
@@ -99,15 +116,19 @@ router.put('/bookmarks/:uid', (req, res) => {
 		'where `uid` = "' +
 		req.params.uid +
 		'"'
-	let remove_bm_tags_query =
-		'delete from `tags` where `uid` = "' + req.params.uid + '"'
-	let add_bm_tags_query = 'insert into `tags` (uid, user, tag) values '
-	tags.forEach(t => {
-		add_bm_tags_query += tagsDbEntriesToString(req.params.uid, user, t) + ','
-	})
-	add_bm_tags_query = add_bm_tags_query.replace(/.$/, ';')
-	let query =
-		add_bm_query + '; ' + remove_bm_tags_query + '; ' + add_bm_tags_query
+	if (!tags.length) {
+		query = add_bm_query
+	} else {
+		let remove_bm_tags_query =
+			'delete from `tags` where `uid` = "' + req.params.uid + '"'
+		let add_bm_tags_query = 'insert into `tags` (uid, user, tag) values '
+		tags.forEach(t => {
+			add_bm_tags_query += tagsDbEntriesToString(req.params.uid, user, t) + ','
+		})
+		add_bm_tags_query = add_bm_tags_query.replace(/.$/, ';')
+		query =
+			add_bm_query + '; ' + remove_bm_tags_query + '; ' + add_bm_tags_query
+	}
 	console.log(query)
 	db.query(query, (err, result) => {
 		if (err) {
