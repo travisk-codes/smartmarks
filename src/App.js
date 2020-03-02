@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Select from 'react-select/creatable'
 import uuid from 'uuid/v4'
 
@@ -40,19 +40,11 @@ function App() {
 		tags: [],
 		inputMode: 'add',
 	})
-	let [tagOptions, setTagOptions] = useState([
-		{ label: 'test', value: 'test' },
-		{ label: 'yay', value: 'yay' },
-		{ label: 'bravo', value: 'bravo' },
-	])
+	let [tagOptions, setTagOptions] = useState([])
 
-	useEffect(() => {
-		if (user.loggedIn) {
-			getBookmarks()
-		}
-	}, [getBookmarks, user.loggedIn])
-
-	async function getBookmarks() {
+	// wrapping function in useCallback to allow call in useEffect
+	// https://reactjs.org/docs/hooks-faq.html#is-it-safe-to-omit-functions-from-the-list-of-dependencies
+	let getBookmarks = useCallback(async () => {
 		let { name, password } = user
 		let params = { user_id: cipher(password)(name) }
 		let url = new URL(bookmarksRoute)
@@ -67,7 +59,11 @@ function App() {
 		} catch (e) {
 			throw new Error(e)
 		}
-	}
+	}, [user])
+
+	useEffect(() => {
+		if (user.loggedIn) getBookmarks()
+	}, [user, getBookmarks])
 
 	async function getTagOptions() {
 		try {
@@ -110,8 +106,9 @@ function App() {
 		}
 		try {
 			await fetch(bookmarksRoute, endPoint)
-			setBookmarkForm({ url: '', title: '', tags: [] })
+			setBookmarkForm({ ...bookmarkForm, url: '', title: '', tags: [] })
 			getBookmark(uid)
+			getTagOptions()
 		} catch (e) {
 			throw new Error(e)
 		}
