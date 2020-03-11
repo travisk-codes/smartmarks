@@ -14,38 +14,33 @@ server.use(body_parser.json())
 server.use('/api', router)
 
 router.get('/bookmarks', (req, res) => {
-	let user_query =
-		'select * from `bookmarks` where `user` = "' + req.query.user_id + '"'
-	let tag_query =
-		'select * from `tags` where user = "' + req.query.user_id + '"'
-	db.query(user_query + '; ' + tag_query, (err, results) => {
-		if (err) {
-			console.log(err)
-			return res.status(500).send(err)
-		}
+	const { user_id } = req.query
+	const query = `
+		select * from bookmarks where user = ?;
+		select * from tags where user = ?;
+	`
+	db.query(query, [user_id, user_id], (err, results) => {
+		if (err) return res.status(500).send(err)
 		return res.send(results)
 	})
 })
+
 router.get('/bookmarks/:uid', (req, res) => {
-	let bookmark_query =
-		'select * from `bookmarks` where uid = "' + req.params.uid + '"'
-	let tag_query = 'select * from `tags` where `uid` = "' + req.params.uid + '"'
-	db.query(bookmark_query + ';' + tag_query, (err, result) => {
-		if (err) {
-			console.log(err)
-			return res.status(500).send(err)
-		}
+	const { uid } = req.params
+	const query = `
+		select * from bookmarks where uid = ?;
+		select * from tags where uid = ?;
+	`
+	db.query(query, [uid, uid], (err, result) => {
+		if (err) return res.status(500).send(err)
 		return res.send(result)
 	})
 })
+
 router.get('/tags', (req, res) => {
-	let query = 'select distinct `tag` from `tags`'
+	let query = 'select distinct tag from tags'
 	db.query(query, (err, result) => {
-		if (err) {
-			console.log(err)
-			return res.status(500).send(err)
-		}
-		console.log(result)
+		if (err) return res.status(500).send(err)
 		return res.send(result)
 	})
 })
@@ -106,17 +101,20 @@ router.post('/bookmarks', (req, res) => {
 router.put('/bookmarks/:uid', (req, res) => {
 	let { url, tags, title, user } = req.body
 	let { uid } = req.params
-	let query = `update bookmarks set title="${title}", url="${url}" where uid="${uid}";`
+
+	let query = `
+		update bookmarks set title = ?, url = ? where uid = ?;
+		delete from tags where uid = ?;
+	`
 	if (tags.length) {
-		let removeTagsQuery = `delete from tags where uid="${uid}"`
-		let addTagsQuery = `insert into tags (uid, user, tag) values`
+		let addTagsQuery = 'insert into tags (uid, user, tag) values'
 		tags.forEach(tag => {
 			addTagsQuery += `("${uid}", "${user}", "${tag}"),`
 		})
 		addTagsQuery = addTagsQuery.replace(/.$/, ';')
-		query += removeTagsQuery + ';' + addTagsQuery
+		query += addTagsQuery
 	}
-	db.query(query, (err, result) => {
+	db.query(query, [title, url, uid, uid], (err, result) => {
 		if (err) {
 			console.log(err)
 			return res.status(500).send(err)
@@ -126,17 +124,15 @@ router.put('/bookmarks/:uid', (req, res) => {
 })
 
 router.delete('/bookmarks/:uid', (req, res) => {
-	let { uid } = req.params
-	let sql =
-		'delete from bookmarks where uid = ?; delete from tags where uid = ?'
-	let callback = (err, result) => {
+	const { uid } = req.params
+	const sql = `
+		delete from bookmarks where uid = ?; 
+		delete from tags where uid = ?;
+	`
+	db.query(sql, [uid, uid], (err, result) => {
 		if (err) return res.status(500).send(err)
 		return res.send(result)
-	}
-	db.query(sql, [uid, uid], callback)
+	})
 })
 
-const port = 7779
-server.listen(port, () => {
-	console.log('listening on port ' + port)
-})
+server.listen(7779)

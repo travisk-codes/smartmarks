@@ -284,6 +284,7 @@ function App() {
 			})
 		}
 		function updateTags(value, meta) {
+			if (!value) value = []
 			setBookmarkForm({
 				...bookmarkForm,
 				tags: value,
