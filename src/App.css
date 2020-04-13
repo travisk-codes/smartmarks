@@ -1,4 +1,12 @@
+html,
+body,
+#root,
+#app-root {
+	height: 100%;
+}
+
 body {
+	height: 100%;
 	background-color: #fafafa;
 	box-sizing: content-box;
 }
@@ -82,6 +90,7 @@ input:focus {
 	margin: 0 auto;
 	padding: 1em;
 	padding-bottom: 2em;
+	max-width: 40em;
 }
 
 #new-bookmark-title {
@@ -91,6 +100,12 @@ input:focus {
 .buttons > button {
 	width: 4.5em;
 	margin-left: 0.5em;
+}
+
+#bookmarks-container {
+	width: 100%;
+	max-width: 40em;
+	margin: 0 auto;
 }
 
 .bookmark .title {
@@ -116,12 +131,19 @@ input:focus {
 	margin: 0.5em 0;
 }
 
+#form-pitch-padding {
+	flex: 1 0 auto;
+}
+
 .pitch {
-	margin: 0.5em 1em;
 	text-align: center;
 	font-size: 1.125em;
 	color: grey;
 	cursor: default;
+	max-width: 40em;
+	margin: 0 auto;
+	margin-bottom: 1em;
+	padding: 0 1em;
 }
 
 a {

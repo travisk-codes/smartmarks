@@ -9,15 +9,46 @@ import './App.css'
 let bookmarksRoute = 'https://travisk.info/api/bookmarks'
 let tagsRoute = 'https://travisk.info/api/tags'
 
+/**
+ * @typedef {Object} Bookmark
+ * @param {string} uid the uuid for the bookmark
+ * @param {string} title the display name of the bookmark
+ * @param {string} url the bookmark link
+ * @param {Tag[]} tags the bookmark's tags
+ *
+ *
+ */
+
+/**
+ * Formats an array of tags for use with React-Select component
+ * @param {string[]} tags the tags to display in the dropdown menu
+ *
+ * @returns {{label: string, value: string}} tags as label-value object pairs
+ */
 function formatTagsForSelect(tags) {
-	if (!tags instanceof Array) return { label: tags, value: tags }
-	return tags.map(t => ({ label: t, value: t }))
+	//if (!tags instanceof Array) return { label: tags, value: tags }
+	return tags.map((t) => ({ label: t, value: t }))
 }
 
+/**
+ * Attaches correct tags to each bookmark via their uids
+ *
+ * @param {Object[]} bookmark every bookmark
+ * @param {string} bookmark.uid a bookmark's uuid
+ * @param {title} bookmark.title the name of a bookmark
+ * @param {url} bookmark.url the bookmark link
+ * @param {tags}
+ *
+ * @param {{uid: string, title: string, url: string, tags: string[], }[]} bookmarks an array of every bookmark
+ * @param {{id: number, uid: string, user: string, tag: string}} tags tag objects returned from the database
+ *
+ * @returns {{uid: string, title: string, url: string, tags: string[]}[]} bookmarks with tag
+ */
 function attachTagstoBookmarks(bookmarks, tags) {
-	bookmarks.forEach(bm => {
+	console.log(tags)
+	bookmarks.forEach((bm) => {
 		bm.tags = []
-		tags.forEach(tag => {
+		tags.forEach((tag) => {
 			if (bm.uid === tag.uid) {
 				bm.tags.push(tag)
 			}
@@ -48,7 +79,7 @@ function App() {
 		let { name, password } = user
 		let params = { user_id: cipher(password)(name) }
 		let url = new URL(bookmarksRoute)
-		Object.keys(params).forEach(key =>
+		Object.keys(params).forEach((key) =>
 			url.searchParams.append(key, params[key]),
 		)
 		try {
@@ -97,7 +128,7 @@ function App() {
 			user: cipher(password)(name),
 			title: cipher(password)(title),
 			url: cipher(password)(url),
-			tags: tags.map(t => cipher(password)(t.label)),
+			tags: tags.map((t) => cipher(password)(t.label)),
 		}
 		let endPoint = {
 			method: 'POST',
@@ -122,7 +153,7 @@ function App() {
 			title: cipher(password)(title),
 			url: cipher(password)(url),
 			user: cipher(password)(name),
-			tags: tags.map(t => cipher(password)(t.label)),
+			tags: tags.map((t) => cipher(password)(t.label)),
 		}
 		let endPoint = {
 			method: 'PUT',
@@ -266,7 +297,7 @@ function App() {
 				/>
 			)
 		}
-		return bookmarks.map(renderBookmark)
+		return <div id='bookmarks-container'>{bookmarks.map(renderBookmark)}</div>
 	}
 
 	function renderBookmarkForm() {
@@ -294,7 +325,7 @@ function App() {
 			e.preventDefault()
 			inputMode === 'add' ? addBookmark() : updateBookmark()
 		}
-		let selectTheme = theme => ({
+		let selectTheme = (theme) => ({
 			...theme,
 			colors: {
 				...theme.colors,
@@ -336,19 +367,19 @@ function App() {
 
 	function renderPitch() {
 		return (
-			<div>
-				<div className='pitch'>
+			<div className='pitch'>
+				<p>
 					Smartmarks is a client-side encrypted bookmarks app. Your data is
 					secured before it is sent to the server, and your password never
 					leaves your computer.
-				</div>
-				<div className='pitch'>
+				</p>
+				<p>
 					Smartmarks is made by Travis Kohlbeck. You can donate to their{' '}
 					<a href='https://patreon.com/travisk_creates'>Patreon</a> or if you
 					are looking to hire, check out their{' '}
 					<a href='https://hire.travisk.info'>portfolio.</a> Thanks for
 					visiting! ❤️
-				</div>
+				</p>
 			</div>
 		)
 	}
@@ -358,6 +389,7 @@ function App() {
 			{renderHeader()}
 			{renderBookmarks()}
 			{user.loggedIn ? renderBookmarkForm() : null}
+			<div id='form-pitch-padding' />
 			{renderPitch()}
 		</div>
 	)
