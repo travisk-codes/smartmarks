@@ -245,6 +245,7 @@ function App() {
 				size='10'
 				id='user-input'
 				autoComplete='username'
+				placeholder='Username'
 				onChange={updateUsername}
 				value={name}
 			/>
@@ -255,6 +256,7 @@ function App() {
 				id='pass-input'
 				type='password'
 				autoComplete='current-password'
+				placeholder='Password'
 				onChange={updatePassword}
 				value={password}
 			/>
