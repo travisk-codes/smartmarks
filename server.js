@@ -38,8 +38,9 @@ router.get('/bookmarks/:uid', (req, res) => {
 })
 
 router.get('/tags', (req, res) => {
-	let query = 'select distinct tag from tags'
-	db.query(query, (err, result) => {
+	const { user_id } = req.query
+	let query = 'select distinct tag from tags where user = ?'
+	db.query(query, [user_id], (err, result) => {
 		if (err) return res.status(500).send(err)
 		return res.send(result)
 	})

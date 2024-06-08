@@ -6,8 +6,8 @@ import Bookmark from './Bookmark'
 import { cipher, decipher } from './cipher'
 import './App.css'
 
-let bookmarksRoute = 'https://travisk.info/api/bookmarks'
-let tagsRoute = 'https://travisk.info/api/tags'
+let bookmarksRoute = 'https://travisk.dev/api/bookmarks'
+let tagsRoute = 'https://travisk.dev/api/tags'
 
 /**
  * @typedef {Object} Bookmark
@@ -93,12 +93,21 @@ function App() {
 	}, [user])
 
 	useEffect(() => {
-		if (user.loggedIn) getBookmarks()
+		if (user.loggedIn) {
+			getBookmarks()
+			getTagOptions()
+		}
 	}, [user, getBookmarks])
 
 	async function getTagOptions() {
+		let { name, password } = user
+		let params = { user_id: cipher(password)(name) }
+		let url = new URL(tagsRoute)
+		Object.keys(params).forEach((key) =>
+			url.searchParams.append(key, params[key]),
+		)
 		try {
-			let response = await fetch(tagsRoute)
+			let response = await fetch(url)
 			let json = await response.json()
 			let tags = json.map(({ tag }) => decipher(user.password)(tag))
 			setTagOptions(formatTagsForSelect(tags))
@@ -106,6 +115,11 @@ function App() {
 			throw new Error(e)
 		}
 	}
+
+	// prevents empty tag list on refresh
+	useEffect(() => {
+		getTagOptions()
+	}, [])
 
 	async function getBookmark(uid) {
 		let route = `${bookmarksRoute}/${uid}`
@@ -375,11 +389,12 @@ function App() {
 					secured before it is sent to the server, and your password never
 					leaves your computer.
 				</p>
+				<p>No sign-in is required, simply log in with a username and password!</p>
 				<p>
 					Smartmarks is made by Travis Kohlbeck. You can donate to their{' '}
-					<a href='https://patreon.com/travisk_creates'>Patreon</a> or if you
+					<a href='https://patreon.com/travisk_creates' target='_blank'>Patreon</a> or if you
 					are looking to hire, check out their{' '}
-					<a href='https://hire.travisk.info'>portfolio.</a> Thanks for
+					<a href='https://hire.travisk.dev' target='_blank'>portfolio.</a> Thanks for
 					visiting! ❤️
 				</p>
 			</div>
